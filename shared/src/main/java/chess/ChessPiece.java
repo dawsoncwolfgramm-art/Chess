@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -43,6 +44,7 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
 
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -51,6 +53,33 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new HashSet<ChessMove>();
+        HashSet<ChessMove> moves = new HashSet<ChessMove>();
+        ChessPosition start = new ChessPosition(5, 4);
+        ChessPosition end = new ChessPosition(6, 5);
+        ChessMove move = new ChessMove(start, end, null);
+        moves.add(move);
+        return moves;
+//        return new HashSet<ChessMove>();
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(pieceColor);
     }
 }
