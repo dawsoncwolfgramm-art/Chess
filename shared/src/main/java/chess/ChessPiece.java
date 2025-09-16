@@ -2,7 +2,6 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -56,10 +55,17 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
-        if (piece.getPieceType() == PieceType.BISHOP) {
-            return List.of(new ChessMove(new ChessPosition(5, 4), new ChessPosition(1, 8), null));
-        }
+        switch (getPieceType()) {
+            case BISHOP -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+//            case ROOK ->
+//            case QUEEN ->
+//            case KING ->
+//            case KNIGHT ->
+//            case PAWN ->
+        };
+
+
+
 //        HashSet<ChessMove> moves = new HashSet<ChessMove>();
 //        ChessPosition start = new ChessPosition(5, 4);
 //        ChessPosition end = new ChessPosition(6, 5);
@@ -89,4 +95,9 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hashCode(pieceColor);
     }
+
+    private Collection<ChessMove> movesFrom(ChessBoard board, ChessPosition from, boolean slide, int[][] direction) {
+        Collection<ChessMove> moves = new HashSet<>();
+    }
+
 }
