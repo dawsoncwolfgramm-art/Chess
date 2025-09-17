@@ -55,13 +55,10 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (getPieceType()) {
+        return switch (getPieceType()) {
             case BISHOP -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
-//            case ROOK ->
-//            case QUEEN ->
-//            case KING ->
-//            case KNIGHT ->
-//            case PAWN ->
+//            default:
+//                new HashSet<>();
         };
 
 
@@ -72,7 +69,7 @@ public class ChessPiece {
 //        ChessMove move = new ChessMove(start, end, null);
 //        moves.add(move);
 //        return moves;
-        return new HashSet<ChessMove>();
+//        return new HashSet<ChessMove>();
     }
 
     @Override
@@ -96,8 +93,43 @@ public class ChessPiece {
         return Objects.hashCode(pieceColor);
     }
 
-    private Collection<ChessMove> movesFrom(ChessBoard board, ChessPosition from, boolean slide, int[][] direction) {
+    private Collection<ChessMove> movesFrom(ChessBoard board, ChessPosition from, boolean slide, int[][] directions) {
         Collection<ChessMove> moves = new HashSet<>();
+        int myRow = from.getRow();
+        int myCol = from.getColumn();
+
+        for (int[] d : directions) {
+            int row = myRow + d[0];
+            int col = myCol + d[1];
+
+            while (inBounds(row, col)) {
+                ChessPosition to = new ChessPosition(row, col);
+                ChessPiece occupide = board.getPiece(to);
+
+                if (occupide == null) {
+                    moves.add(new ChessMove(from, to, null));
+                }
+
+                else {
+                    if (occupide.getTeamColor() != getTeamColor()) {
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                    break;
+                }
+
+                if (slide) {
+                    row = row + d[0];
+                    col = col + d[1];
+
+                }else {
+                    break;
+                }
+            }
+        }
+        return moves;
     }
 
+    private boolean inBounds (int row, int col) {
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
+    }
 }
