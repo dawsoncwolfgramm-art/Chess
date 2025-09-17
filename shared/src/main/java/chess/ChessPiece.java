@@ -60,7 +60,7 @@ public class ChessPiece {
             case ROOK -> movesFrom(board, myPosition, true, new int[][]{{0, 1}, {0, -1}, {-1, 0}, {1, 0}});
             case QUEEN -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
             case KING -> movesFrom(board, myPosition, false, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
-            case KNIGHT -> movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, 1}});
+            case KNIGHT -> movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}});
             case PAWN -> movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, 1}});
 //            default:
 //                new HashSet<>();
