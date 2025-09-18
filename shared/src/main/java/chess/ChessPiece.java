@@ -57,23 +57,15 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (getPieceType()) {
             case BISHOP -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
-            case KING -> break;
-            case QUEEN -> break;
-            case KNIGHT -> break;
-            case PAWN -> break;
+            case ROOK -> movesFrom(board, myPosition, true, new int[][]{{0, 1}, {0, -1}, {-1, 0}, {1, 0}});
+            case QUEEN -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
+            case KING -> movesFrom(board, myPosition, false, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
+            case KNIGHT -> movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}});
+            case PAWN -> movesPawn(board, myPosition, false, new int[][]{{0, 1}});
 //            default:
 //                new HashSet<>();
         };
 
-
-
-//        HashSet<ChessMove> moves = new HashSet<ChessMove>();
-//        ChessPosition start = new ChessPosition(5, 4);
-//        ChessPosition end = new ChessPosition(6, 5);
-//        ChessMove move = new ChessMove(start, end, null);
-//        moves.add(move);
-//        return moves;
-//        return new HashSet<ChessMove>();
     }
 
     @Override
@@ -133,7 +125,65 @@ public class ChessPiece {
         return moves;
     }
 
+    private Collection<ChessMove> movesPawn(ChessBoard board, ChessPosition from, boolean slide, int[][] directions) {
+        Collection<ChessMove> moves = new HashSet<>();
+        int myRow = from.getRow();
+        int myCol = from.getColumn();
+
+        if (myRow == 2) {  //this is at the start
+            for (int i = 1; i <= 2; i++) {
+                int row = myRow + i;
+                int col = myCol + 0;
+                while (inBounds(row, col)) {
+                    ChessPosition to = new ChessPosition(row, col);
+                    ChessPosition pawnKillRight = new ChessPosition(myRow + 1, myCol + 1);
+                    ChessPosition pawnKillLeft = new ChessPosition(myRow + 1, myCol -1);
+                    ChessPiece occupied = board.getPiece(to);
+                    ChessPiece enemey1 = board.getPiece(pawnKillRight);
+                    ChessPiece enemey2 = board.getPiece(pawnKillLeft);
+
+
+                    if (occupied == null) {
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                    else {
+                        if (enemey1.getTeamColor() != getTeamColor()) {
+                            moves.add(new ChessMove(from, pawnKillLeft, null));
+                        } else if (enemey2.getTeamColor() != getTeamColor()) {
+                            moves.add(new ChessMove(from, pawnKillright))
+                        }
+                    }
+
+                    else {
+                        if (occupied.getTeamColor() != getTeamColor()) {
+                            moves.add(new ChessMove(from, to, null));
+                        }
+                        break;
+                    }
+
+                    if (slide) {
+                        row = row + d[0];
+                        col = col + d[1];
+
+                    }else {
+                        break;
+                    }
+                }
+            }
+            return moves;
+
+        }
+        if (arrivePromote(row) && inBounds(col)) {
+
+        }
+        return moves;
+    }
+
     private boolean inBounds (int row, int col) {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
+    }
+
+    private boolean arrivePromote (int row) {
+        return row = 8;
     }
 }
