@@ -108,10 +108,17 @@ public class ChessPiece {
 
             while (inBounds(row, col)) {
                 ChessPosition to = new ChessPosition(row, col);
-                ChessPiece occupide = board.getPiece(to);
+                ChessPiece occupied = board.getPiece(to);
 
-                if (occupide == null) {
+                if (occupied == null) {
                     moves.add(new ChessMove(from, to, null));
+                }
+
+                else {
+                    if (occupied.getTeamColor() != getTeamColor()) {
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                    break;
                 }
 
                 if (slide) {
