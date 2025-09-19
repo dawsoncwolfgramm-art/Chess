@@ -81,12 +81,12 @@ public class ChessPiece {
             return false;
         }
         ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor;
+        return pieceColor == that.pieceColor && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(pieceColor);
+        return Objects.hash(pieceColor, type);
     }
 
     private Collection<ChessMove> movesFrom(ChessBoard board, ChessPosition from, boolean slide, int[][] directions) {
