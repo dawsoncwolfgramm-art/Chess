@@ -141,37 +141,16 @@ public class ChessPiece {
             if (start && inBounds(moveTwo) && board.getPiece(moveTwo) == null) {  //this is at the start with either move two
                 moves.add(new ChessMove(from, moveTwo, null));
             }
+        }
 
-            for (int i = 1; i <= 2; i++) {
-                int row = myRow + i;
-                int col = myCol + 0;
-                while (inBounds(row, col)) { // copy from top
-                    ChessPosition to = new ChessPosition(row, col);
-                    ChessPosition pawnKillRight = new ChessPosition(myRow + 1, myCol + 1);
-                    ChessPosition pawnKillLeft = new ChessPosition(myRow + 1, myCol - 1);
-                    ChessPiece occupied = board.getPiece(to);
-                    ChessPiece enemey1 = board.getPiece(pawnKillRight);
-                    ChessPiece enemey2 = board.getPiece(pawnKillLeft);
-
-
-                    if (occupied == null) {
-                        moves.add(new ChessMove(from, to, null));
-                    } else {
-                        if (enemey1.getTeamColor() != getTeamColor()) {
-                            moves.add(new ChessMove(from, pawnKillLeft, null));
-//                            } else if (enemey2.getTeamColor() != getTeamColor()) {
-//                                moves.add(new ChessMove(from, pawnKillright, null));
-                        }
-                    }
-
-                    else{
-                        if (occupied.getTeamColor() != getTeamColor()) {
-                            moves.add(new ChessMove(from, to, null));
-                        }
-                        break;
-                    }
+        int[] pawnCapture = new int[]{1, -1};
+        for (int pc : pawnCapture) {
+            ChessPosition enemyPos = new ChessPosition(myRow + direction, myCol + pc);
+            if (inBounds(enemyPos)) { // copy from top
+                ChessPiece enemy = board.getPiece(enemyPos);
+                if (enemy == null && enemy.getTeamColor() != getTeamColor()) {
+                    addMovePromote(moves, from, enemyPos);
                 }
-
             }
         }
         return moves;
