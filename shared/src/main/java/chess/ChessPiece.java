@@ -172,6 +172,9 @@ public class ChessPiece {
             moves.add(new ChessMove(from, to, ChessPiece.PieceType.ROOK));
 
         }
+        else {
+            moves.add(new ChessMove(from, to, null));
+        }
 
     }
 
