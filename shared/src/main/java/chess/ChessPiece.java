@@ -148,7 +148,7 @@ public class ChessPiece {
             ChessPosition enemyPos = new ChessPosition(myRow + direction, myCol + pc);
             if (inBounds(enemyPos)) { // copy from top
                 ChessPiece enemy = board.getPiece(enemyPos);
-                if (enemy == null && enemy.getTeamColor() != getTeamColor()) {
+                if (enemy != null && enemy.getTeamColor() != getTeamColor()) {
                     addMovePromote(moves, from, enemyPos);
                 }
             }
@@ -157,7 +157,7 @@ public class ChessPiece {
     }
 
 
-    private void addMovePromote(Collection<ChessMove> moves, ChessPosition from, ChessPosition to) {
+    private Collection<ChessMove> addMovePromote(Collection<ChessMove> moves, ChessPosition from, ChessPosition to) {
         int arrivePromote;
         if (getTeamColor() == ChessGame.TeamColor.WHITE) {
             arrivePromote = 8;
@@ -175,7 +175,7 @@ public class ChessPiece {
         else {
             moves.add(new ChessMove(from, to, null));
         }
-
+        return moves;
     }
 
     private boolean inBounds (int row, int col) {
