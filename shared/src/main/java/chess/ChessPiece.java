@@ -135,9 +135,13 @@ public class ChessPiece {
         ChessPosition moveOne = new ChessPosition(myRow + direction, myCol); // needs movement on both sides.
         if (inBounds(moveOne) && board.getPiece(moveOne) == null) {
             addMovePromote(moves, from, moveOne);
-        }
 
-        if (myRow == 2) {  //this is at the start
+            boolean start = (getTeamColor() == ChessGame.TeamColor.WHITE && myRow == 2) || (getTeamColor() == ChessGame.TeamColor.BLACK && myRow == 7);
+            ChessPosition moveTwo = new ChessPosition(myRow + (2 * direction), myCol);
+            if (start && inBounds(moveTwo) && board.getPiece(moveTwo) == null) {  //this is at the start with either move two
+                moves.add(new ChessMove(from, moveTwo, null));
+            }
+
             for (int i = 1; i <= 2; i++) {
                 int row = myRow + i;
                 int col = myCol + 0;
@@ -155,8 +159,8 @@ public class ChessPiece {
                     } else {
                         if (enemey1.getTeamColor() != getTeamColor()) {
                             moves.add(new ChessMove(from, pawnKillLeft, null));
-                        } else if (enemey2.getTeamColor() != getTeamColor()) {
-                            moves.add(new ChessMove(from, pawnKillright, null));
+//                            } else if (enemey2.getTeamColor() != getTeamColor()) {
+//                                moves.add(new ChessMove(from, pawnKillright, null));
                         }
                     }
 
@@ -167,15 +171,12 @@ public class ChessPiece {
                         break;
                     }
                 }
+
             }
         }
         return moves;
     }
 
-
-    private boolean arrivePromote (int row) {
-        return row = 8;
-    }
 
     private void addMovePromote(Collection<ChessMove> moves, ChessPosition from, ChessPosition to) {
         int arrivePromote;
@@ -187,6 +188,10 @@ public class ChessPiece {
         }
         if (to.getRow() == arrivePromote) {
             moves.add(new ChessMove(from, to, ChessPiece.PieceType.QUEEN));
+            moves.add(new ChessMove(from, to, ChessPiece.PieceType.BISHOP));
+            moves.add(new ChessMove(from, to, ChessPiece.PieceType.KNIGHT));
+            moves.add(new ChessMove(from, to, ChessPiece.PieceType.ROOK));
+
         }
 
     }
