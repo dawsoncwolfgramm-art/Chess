@@ -136,7 +136,8 @@ public class ChessPiece {
         if (inBounds(moveOne) && board.getPiece(moveOne) == null) {
             addMovePromote(moves, from, moveOne);
 
-            boolean start = (getTeamColor() == ChessGame.TeamColor.WHITE && myRow == 2) || (getTeamColor() == ChessGame.TeamColor.BLACK && myRow == 7);
+            boolean start = (getTeamColor() == ChessGame.TeamColor.WHITE && myRow == 2) ||
+                    (getTeamColor() == ChessGame.TeamColor.BLACK && myRow == 7);
             ChessPosition moveTwo = new ChessPosition(myRow + (2 * direction), myCol);
             if (start && inBounds(moveTwo) && board.getPiece(moveTwo) == null) {  //this is at the start with either move two
                 moves.add(new ChessMove(from, moveTwo, null));
