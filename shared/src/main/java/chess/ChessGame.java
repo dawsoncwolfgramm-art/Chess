@@ -1,7 +1,6 @@
 package chess;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -11,19 +10,19 @@ import java.util.Objects;
  */
 public class ChessGame {
     private ChessBoard board;
-    private TeamColor turn;
+    private TeamColor currentTurn;
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
-        this.turn = TeamColor.WHITE;
+        this.currentTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return turn;
+        return currentTurn;
     }
 
     /**
@@ -32,7 +31,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.turn = team;
+        this.currentTurn = team;
     }
 
     /**
@@ -42,9 +41,6 @@ public class ChessGame {
         WHITE,
         BLACK,
 
-
-    }
-    public teamColor (TeamColor turn){
 
     }
 
@@ -63,15 +59,22 @@ public class ChessGame {
             return null;
         }
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
-        arrayList legalMoves;
+        Collection<ChessMove> legalMoves = new HashSet<>();
 
+        for (ChessMove move : possibleMoves) {
+            if (!kingNotSafe(move, piece.getTeamColor())) {
+                legalMoves.add(move);
+            }
+        }
         // if king isnt in check mate add it to legal moves
-
-
-
-        return possibleMoves;
+        return legalMoves;
     }
 
+    private boolean kingNotSafe(ChessMove move, TeamColor myColor) {
+        ChessPosition from = move.getStartPosition();
+        ChessPosition to = move.getEndPosition();
+
+    }
     /**
      * Makes a move in a chess game
      *
@@ -82,6 +85,14 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
+
+        if (piece == null) {
+            throw new InvalidMoveException("No piece at start");
+        }
+
+        if (piece.getTeamColor() != currentTurn) {
+            throw new InvalidMoveException("Not your turn");
+        }
 
         // start exceipton if its null and on the right piece color so they aren't moving pieces that aren't their own.
         // if there is a piece that is empty dont no moves.
