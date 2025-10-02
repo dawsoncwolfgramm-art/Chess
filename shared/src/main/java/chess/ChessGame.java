@@ -40,8 +40,15 @@ public class ChessGame {
      */
     public enum TeamColor {
         WHITE,
-        BLACK
+        BLACK,
+
+
     }
+    public teamColor (TeamColor turn){
+
+    }
+
+
 
     /**
      * Gets a valid moves for a piece at the given location
@@ -51,7 +58,18 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException();
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) {
+            return null;
+        }
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+        arrayList legalMoves;
+
+        // if king isnt in check mate add it to legal moves
+
+
+
+        return possibleMoves;
     }
 
     /**
@@ -65,6 +83,12 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
 
+        // start exceipton if its null and on the right piece color so they aren't moving pieces that aren't their own.
+        // if there is a piece that is empty dont no moves.
+        // added a piece at the end position and set the start position to null
+        // if i have a king move to end position and the start position is null.
+        // its not the teams turn if you pick on a piece that isn't theirs and make a move
+        // if you deal with a promotion of a pawn promote then switch turns after each move.
     }
 
     /**
@@ -75,6 +99,8 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+        //checking every piece to see if it attacks the king
+        //know where the king is and is there another piece attacking the king say true
     }
 
     /**
@@ -85,6 +111,8 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+        // if king is not in check return false
+        // if king is in check can he move? can king escape or king can kill them. valid moves from others cannot ==
     }
 
     /**
@@ -96,6 +124,8 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+        // check if king is check return false
+        // not being attacked but cant move anywhere.
     }
 
     /**
