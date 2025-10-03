@@ -73,7 +73,16 @@ public class ChessGame {
     private boolean kingNotSafe(ChessMove move, TeamColor myColor) {
         ChessPosition from = move.getStartPosition();
         ChessPosition to = move.getEndPosition();
+        ChessPiece moveFrom = board.getPiece(from);
+        ChessPiece movedTo = board.getPiece(to);
 
+        board.addPiece(from, null);
+        if (move.getPromotionPiece() != null) {
+            board.addPiece(to, new ChessPiece(moveFrom.getTeamColor(), move.getPromotionPiece()));
+        }
+        else {
+            board.addPiece(to, movefrom);
+        }
     }
     /**
      * Makes a move in a chess game
