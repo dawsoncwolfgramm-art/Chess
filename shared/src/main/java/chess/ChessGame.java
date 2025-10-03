@@ -100,19 +100,34 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
+        ChessPiece moveFrom = board.getPiece(start);
+        ChessPiece enemy = board.getPiece(end);
         ChessPiece piece = board.getPiece(start);
 
         if (piece == null) {
-            throw new InvalidMoveException("No piece at start");
+            throw new InvalidMoveException("No piece at Position.");
         }
 
         if (piece.getTeamColor() != currentTurn) {
-            throw new InvalidMoveException("Not your turn");
+            throw new InvalidMoveException("Not your turn.");
+        }
+        Collection<ChessMove> workingMoves = validMoves(start);
+
+        if (workingMoves == null || !workingMoves.contains(move)) {
+            throw new InvalidMoveException("Not a valid move. / No moves.");
         }
 
-        if (isInCheck(piece.getTeamColor())) {
 
+        board.addPiece(start, null);
+        if (move.getPromotionPiece() != null) {
+            board.addPiece(end, new ChessPiece(moveFrom.getTeamColor(), move.getPromotionPiece()));
         }
+        else {
+            board.addPiece(end, moveFrom);
+        }
+
+        var oppColor = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        setTeamTurn(oppColor);
 
         // start exceipton if its null and on the right piece color so they aren't moving pieces that aren't their own.
         // if there is a piece that is empty do no moves.
@@ -179,7 +194,8 @@ public class ChessGame {
         ChessPiece king = board.getPiece(kingPos);
         if (king == null) return false;
         TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-
+        //has no moves function
+        //valid moves == null nothing can be moved to get out of check.
         if (isInCheck(myTeam)) {
             for (int x = 1; x <= 8; x++) {
                 for (int y = 1; y <= 8; y++) {
@@ -202,6 +218,9 @@ public class ChessGame {
         }
         return false;
         // if king is not in check return false
+
+        //king has to be in check
+        // no legal moves on the board.your pieces have legal moves.
         // if king is in check can he move? can king escape or king can kill them. valid moves from others cannot ==
     }
 
