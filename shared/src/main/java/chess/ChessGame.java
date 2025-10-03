@@ -81,8 +81,10 @@ public class ChessGame {
             board.addPiece(to, new ChessPiece(moveFrom.getTeamColor(), move.getPromotionPiece()));
         }
         else {
-            board.addPiece(to, movefrom);
+            board.addPiece(to, moveFrom);
         }
+
+        boolean inCheck = isInCheck(myColor);
     }
     /**
      * Makes a move in a chess game
@@ -117,10 +119,32 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+    public boolean isInCheck(TeamColor myTeam) {
+        ChessPosition king = findKing(myTeam);
+
+        TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        for (int x = 0; x <= 8; x++) {
+            for (int y = 0; y <= 8; x++) {
+                ChessPosition pos = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(pos);
+            }
+        }
+
         //checking every piece to see if it attacks the king
         //know where the king is and is there another piece attacking the king say true
+    }
+
+    ChessPosition findKing(TeamColor myTeam) {
+        for (int x = 1; x <= 8; x++) {
+            for (int y = 1; y <= 8; y++) {
+                ChessPosition pos = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(pos);
+                if (piece != null && piece.getTeamColor() == myTeam && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return pos;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -170,7 +194,7 @@ public class ChessGame {
     public String toString() {
         return "ChessGame{" +
                 "board=" + board +
-                ", turn=" + turn +
+                ", turn=" + currentTurn +
                 '}';
     }
 
@@ -180,11 +204,11 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board) && turn == chessGame.turn;
+        return Objects.equals(board, chessGame.board) && currentTurn == chessGame.currentTurn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, turn);
+        return Objects.hash(board, currentTurn);
     }
 }
