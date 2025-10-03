@@ -130,7 +130,7 @@ public class ChessGame {
 
         TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         for (int x = 0; x <= 8; x++) {
-            for (int y = 0; y <= 8; x++) {
+            for (int y = 0; y <= 8; y++) {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
 
