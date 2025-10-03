@@ -211,11 +211,22 @@ public class ChessGame {
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves while not in check.
      *
-     * @param teamColor which team to check for stalemate
+     * @param myTeam which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    public boolean isInStalemate(TeamColor teamColor) {
+    public boolean isInStalemate(TeamColor myTeam) {
+        if (isInCheck(myTeam)) return false;
+        for (int x = 1; x <= 8; x++) {
+            for (int y = 1; y <= 8; y++) {
+                ChessPosition pos = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(pos);
+                if (piece == null || piece.getTeamColor() != myTeam) continue;
 
+                var moves = validMoves(new ChessPosition(x, y));
+                if (moves != null && !moves.isEmpty()) return false;
+            }
+        }
+        return true;
         // check if king is check return false
         // not being attacked but cant move anywhere.
     }
