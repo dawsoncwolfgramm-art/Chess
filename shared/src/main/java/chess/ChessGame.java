@@ -85,6 +85,11 @@ public class ChessGame {
         }
 
         boolean inCheck = isInCheck(myColor);
+
+        board.addPiece(to, movedTo);
+        board.addPiece(from, moveFrom);
+
+        return !inCheck;
     }
     /**
      * Makes a move in a chess game
@@ -121,15 +126,26 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor myTeam) {
         ChessPosition king = findKing(myTeam);
+        if (king == null) return false;
 
         TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         for (int x = 0; x <= 8; x++) {
             for (int y = 0; y <= 8; x++) {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
+
+                if (piece == null || piece.getTeamColor() != enemyTeam) continue;
+
+                for (ChessMove attack : piece.pieceMoves(board, pos)) {
+                    ChessPosition end = attack.getEndPosition();
+                    if (end.getRow() == king.getRow() && end.getColumn() == king.getColumn()) {
+                        return true;
+                    }
+
+                }
             }
         }
-
+        return false;
         //checking every piece to see if it attacks the king
         //know where the king is and is there another piece attacking the king say true
     }
