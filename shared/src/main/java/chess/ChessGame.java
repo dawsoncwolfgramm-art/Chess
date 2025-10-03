@@ -62,7 +62,7 @@ public class ChessGame {
         Collection<ChessMove> legalMoves = new HashSet<>();
 
         for (ChessMove move : possibleMoves) {
-            if (!kingNotSafe(move, piece.getTeamColor())) {
+            if (kingSafe(move, piece.getTeamColor())) {
                 legalMoves.add(move);
             }
         }
@@ -70,11 +70,11 @@ public class ChessGame {
         return legalMoves;
     }
 
-    private boolean kingNotSafe(ChessMove move, TeamColor myColor) {
+    private boolean kingSafe(ChessMove move, TeamColor myColor) {
         ChessPosition from = move.getStartPosition();
         ChessPosition to = move.getEndPosition();
         ChessPiece moveFrom = board.getPiece(from);
-        ChessPiece movedTo = board.getPiece(to);
+        ChessPiece enemy = board.getPiece(to);
 
         board.addPiece(from, null);
         if (move.getPromotionPiece() != null) {
@@ -86,7 +86,7 @@ public class ChessGame {
 
         boolean inCheck = isInCheck(myColor);
 
-        board.addPiece(to, movedTo);
+        board.addPiece(to, enemy);
         board.addPiece(from, moveFrom);
 
         return !inCheck;
@@ -110,8 +110,12 @@ public class ChessGame {
             throw new InvalidMoveException("Not your turn");
         }
 
+        if (isInCheck(piece.getTeamColor())) {
+
+        }
+
         // start exceipton if its null and on the right piece color so they aren't moving pieces that aren't their own.
-        // if there is a piece that is empty dont no moves.
+        // if there is a piece that is empty do no moves.
         // added a piece at the end position and set the start position to null
         // if i have a king move to end position and the start position is null.
         // its not the teams turn if you pick on a piece that isn't theirs and make a move
@@ -121,16 +125,17 @@ public class ChessGame {
     /**
      * Determines if the given team is in check
      *
-     * @param teamColor which team to check for check
+     * @param myTeam which team to check for check
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor myTeam) {
-        ChessPosition king = findKing(myTeam);
+        ChessPosition kingPos = findKing(myTeam);
+        ChessPiece king = board.getPiece(kingPos);
         if (king == null) return false;
 
         TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-        for (int x = 0; x <= 8; x++) {
-            for (int y = 0; y <= 8; y++) {
+        for (int x = 1; x <= 8; x++) {
+            for (int y = 1; y <= 8; y++) {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
 
@@ -138,7 +143,7 @@ public class ChessGame {
 
                 for (ChessMove attack : piece.pieceMoves(board, pos)) {
                     ChessPosition end = attack.getEndPosition();
-                    if (end.getRow() == king.getRow() && end.getColumn() == king.getColumn()) {
+                    if (end.getRow() == kingPos.getRow() && end.getColumn() == kingPos.getColumn()) {
                         return true;
                     }
 
@@ -150,7 +155,7 @@ public class ChessGame {
         //know where the king is and is there another piece attacking the king say true
     }
 
-    ChessPosition findKing(TeamColor myTeam) {
+    private ChessPosition findKing(TeamColor myTeam) {
         for (int x = 1; x <= 8; x++) {
             for (int y = 1; y <= 8; y++) {
                 ChessPosition pos = new ChessPosition(x, y);
@@ -166,11 +171,36 @@ public class ChessGame {
     /**
      * Determines if the given team is in checkmate
      *
-     * @param teamColor which team to check for checkmate
+     * @param myTeam which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+    public boolean isInCheckmate(TeamColor myTeam) {
+        ChessPosition kingPos = findKing(myTeam);
+        ChessPiece king = board.getPiece(kingPos);
+        if (king == null) return false;
+        TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+
+        if (isInCheck(myTeam)) {
+            for (int x = 1; x <= 8; x++) {
+                for (int y = 1; y <= 8; y++) {
+                    ChessPosition pos = new ChessPosition(x, y);
+                    ChessPiece piece = board.getPiece(pos);
+
+                    if (piece == null || piece.getTeamColor() != enemyTeam) continue;
+
+                    for (ChessMove kingMove : king.pieceMoves(board, kingPos)) {
+                        for (ChessMove attack : piece.pieceMoves(board, pos)) {
+                            ChessPosition end = attack.getEndPosition();
+                            ChessPosition kingMoveEnd = kingMove.getEndPosition();
+                            if (end.getRow() == kingMoveEnd.getRow() && end.getColumn() == kingMoveEnd.getColumn()) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
         // if king is not in check return false
         // if king is in check can he move? can king escape or king can kill them. valid moves from others cannot ==
     }
