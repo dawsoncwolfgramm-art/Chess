@@ -11,6 +11,8 @@ public class Server {
 
         server.delete("db", ctx -> ctx.result("{}"));
 
+        server.post("user", ctx -> ctx.result("{\"username\":\"joe\", \"authToken\":\"xyz\"}"));
+
         // Register your endpoints and exception handlers here.
 
     }
