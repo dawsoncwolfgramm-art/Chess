@@ -42,7 +42,17 @@ public class Server {
             var response = serializer.toJson(authData);
             ctx.result(response);
         } catch (Exception ex) {
-            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
+            String msg = ex.getMessage();
+            if ("already taken".equals(msg)) {
+                ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
+            } else if ("bad request".equals(msg)) {
+                ctx.status(403).result("{ \"message\": \"Error: bad request\" }");
+            } else if ("unauthorized".equals(msg)) {
+                ctx.status(403).result("{ \"message\": \"Error: unauthorized\" }");
+            } else {
+                ctx.status(403).result("{ \"message\": \"Error: server down\" }");
+            }
+//            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
         }
     }
 

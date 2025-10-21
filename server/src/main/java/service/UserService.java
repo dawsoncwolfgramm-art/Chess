@@ -1,7 +1,5 @@
 package service;
 
-//import datamodel.RegistrationResult;
-
 import datamodel.AuthData;
 import dataaccess.DataAccess;
 import datamodel.UserData;
@@ -9,20 +7,21 @@ import datamodel.UserData;
 public class UserService {
     private final DataAccess dataAccess;
 
+    public UserService(DataAccess dataAccess) {
+        this.dataAccess = dataAccess;
+    }
+
     public void clear() {
 
     }
 
-    public UserService(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
-    }
 
     public AuthData register(UserData user) throws Exception {
 //        if (dataAccess.getUser(user.username()) == null || dataAccess.getUser(user.email()) == null || dataAccess.getUser(user.password()) == null) {
 //            throw new Exception("bad request");
 //        }
         if (dataAccess.getUser(user.username()) != null) {
-            throw new Exception("already exists");
+            throw new Exception("already taken");
         }
         dataAccess.createUser(user);
         AuthData authData = new AuthData(user.username(), generateAuthToken());
