@@ -26,7 +26,19 @@ public class UserServiceTest {
         assertEquals(res.username(), user.username());
         assertNotNull(res.authToken());
         assertEquals(String.class, res.authToken().getClass());
+    }
 
+    @Test
+    void login() throws Exception {
+        var user = new UserData("jow", "j@j", "j");
+        var at = "xyz";
 
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        AuthData res = service.register(user);
+        assertNotNull(res);
+        assertEquals(res.username(), user.username());
+        assertNotNull(res.authToken());
+        assertEquals(String.class, res.authToken().getClass());
     }
 }

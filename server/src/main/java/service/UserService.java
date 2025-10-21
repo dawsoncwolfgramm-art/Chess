@@ -12,17 +12,37 @@ public class UserService {
     }
 
     public void clear() {
-
+        dataAccess.clear();
     }
 
 
     public AuthData register(UserData user) throws Exception {
-//        if (dataAccess.getUser(user.username()) == null || dataAccess.getUser(user.email()) == null || dataAccess.getUser(user.password()) == null) {
-//            throw new Exception("bad request");
-//        }
+        if (user == null || user.username() == null || user.username().isBlank() ||
+                user.email() == null || user.email().isBlank() ||
+                user.password() == null || user.password().isBlank()) {
+            throw new Exception("bad request");
+        }
         if (dataAccess.getUser(user.username()) != null) {
             throw new Exception("already taken");
         }
+        dataAccess.createUser(user);
+        AuthData authData = new AuthData(user.username(), generateAuthToken());
+        return authData;
+    }
+
+    public AuthData login(UserData user) throws Exception {
+        if (user == null || user.username() == null || user.username().isBlank() ||
+                user.email() == null || user.email().isBlank() ||
+                user.password() == null || user.password().isBlank()) {
+            throw new Exception("bad request");
+        }
+
+        if ()
+        if (dataAccess.getUser(user.username()) != null) {
+            throw new Exception("already taken");
+        }
+
+//        dataAccess.getUser(user.username()) == user.username()
         dataAccess.createUser(user);
         AuthData authData = new AuthData(user.username(), generateAuthToken());
         return authData;
