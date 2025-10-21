@@ -1,17 +1,27 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
+import dataaccess.MemoryDataAccess;
+import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.UserService;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 
 public class Server {
 
     private final Javalin server;
+    private UserService userService;
+    private DataAccess dataAccess;
+
 
     public Server() {
+        dataAccess = new MemoryDataAccess();
+        userService = new UserService(dataAccess);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         server.delete("db", ctx -> ctx.result("{}"));
@@ -23,13 +33,17 @@ public class Server {
 
     }
 
-    private void register(Context ctx) {
-        var serializer = new Gson();
-        var request = serializer.fromJson(ctx.body(), Map.class);
-        request.put("authToken", "cow");
-        var response = serializer.toJson(request);
-        ctx.result(response);
-
+    private void register(Context ctx) throws Exception {
+        try {
+            var serializer = new Gson();
+            String requestJson = ctx.body();
+            var user = serializer.fromJson(requestJson, UserData.class);
+            var authData = userService.register(user);
+            var response = serializer.toJson(authData);
+            ctx.result(response);
+        } catch (Exception ex) {
+            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
+        }
     }
 
     public int run(int desiredPort) {
