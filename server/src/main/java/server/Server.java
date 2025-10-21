@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import datamodel.AuthData;
 import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -27,6 +28,8 @@ public class Server {
         server.delete("db", ctx -> ctx.result("{}"));
         server.post("user", this::register);
         server.post("/session", this::login);
+        server.delete("/session", this::logout);
+        server.post("/game", this::createGame);
 
         // Register your endpoints and exception handlers here.
 
@@ -62,15 +65,38 @@ public class Server {
             ctx.status(200).result(response);
         } catch (Exception ex) {
             String msg = ex.getMessage();
-            if ("already taken".equals(msg)) {
-                ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
-            } else if ("bad request".equals(msg)) {
+            if ("bad request".equals(msg)) {
                 ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
             } else if ("unauthorized".equals(msg)) {
                 ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
             } else {
                 ctx.status(500).result("{ \"message\": \"Error: server down\" }");
             }
+        }
+    }
+
+    private void logout(Context ctx) throws Exception {
+        try {
+            String data = ctx.header("authorization");
+            userService.logout(data);
+            ctx.status(200).result("{}");
+        } catch (Exception ex) {
+            String msg = ex.getMessage();
+            if ("bad request".equals(msg)) {
+                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+            } else if ("unauthorized".equals(msg)) {
+                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+            } else {
+                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+            }
+        }
+    }
+
+
+    private void createGame(Context ctx) throws Exception {
+        try {
+            String data = ctx.header("authorization");
+            userService.
         }
     }
 
