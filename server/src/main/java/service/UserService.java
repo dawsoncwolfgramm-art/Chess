@@ -83,7 +83,6 @@ public class UserService {
             throw new Exception("bad request");
         }
 
-
         GameData gameData;
         int num = 1;
         while (true) {
