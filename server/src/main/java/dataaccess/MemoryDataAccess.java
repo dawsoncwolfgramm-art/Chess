@@ -1,21 +1,24 @@
 package dataaccess;
 
 
+import chess.ChessGame;
 import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.AuthData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryDataAccess implements DataAccess {
 
     private HashMap<String, UserData> users = new HashMap<>();
     private HashMap<String, AuthData> auth = new HashMap<>();
-    private HashMap<String, GameData> data = new HashMap<>();
+    private HashMap<Integer, GameData> game = new HashMap<>();
 
     public void clear() {
         users.clear();
         auth.clear();
+        game.clear();
     }
 
     public void createUser(UserData user) {
@@ -42,9 +45,41 @@ public class MemoryDataAccess implements DataAccess {
         auth.remove(authToken);
     }
 
+    @Override
     public void addGame(GameData gameData) {
-        data.put(gameData.gameName(), gameData);
+        game.put(gameData.gameID(), gameData);
     }
 
+    @Override
+    public Collection<GameData> getAllGames() {
+        return game.values();
+    }
+
+    @Override
+    public GameData getGame(int gameId) {
+        return game.get(gameId);
+    }
+
+    @Override
+    public AuthData getPlayerName(String authToken) {
+        return auth.get(authToken);
+    }
+
+    @Override
+    public String isColorNull(Integer gameId, String color) {
+        if (color.equalsIgnoreCase("white")) {
+            return game.get(gameId).whiteUsername();
+        }
+        if (color.equalsIgnoreCase("black")) {
+            return game.get(gameId).blackUsername();
+        }
+    }
+    
+
+    @Override
+    public void updateGame(int gameId, String whiteUsername,
+                           String blackUsername, String gameName, ChessGame game) {
+
+    }
 
 }

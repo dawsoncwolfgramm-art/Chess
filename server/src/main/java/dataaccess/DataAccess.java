@@ -1,6 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
 import datamodel.*;
+
+import java.util.Collection;
 
 public interface DataAccess {
     void clear();
@@ -17,5 +20,14 @@ public interface DataAccess {
 
     void addGame(GameData gameData);
 
-//    GameData getGame()
+    Collection<GameData> getAllGames();
+
+    GameData getGame(int gameId);
+
+    AuthData getPlayerName(String auth);
+
+    String isColorNull(Integer gameId, String color);
+
+    void updateGame(int gameId, String whiteUsername,
+                    String blackUsername, String gameName, ChessGame game);
 }

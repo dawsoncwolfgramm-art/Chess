@@ -1,17 +1,17 @@
 package server;
 
-
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
-import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
+import datamodel.JoinGameRequest;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.UserService;
 
 import javax.xml.crypto.Data;
+import java.util.List;
 import java.util.Map;
 
 
@@ -32,6 +32,8 @@ public class Server {
         server.post("/session", this::login);
         server.delete("/session", this::logout);
         server.post("/game", this::createGame);
+//        server.get("/game", this::listGames);
+        server.put("/game", this::joinGame);
 
         // Register your endpoints and exception handlers here.
 
@@ -115,6 +117,46 @@ public class Server {
         }
     }
 
+//    private void listGames(Context ctx) throws Exception {
+//        try {
+//            String token = ctx.header("authorization");
+//            List<GameData> gameList = userService.listGames(token);
+//            for (GameData g : gameList) {
+//                System.out.println(g);
+//            }
+//            ctx.status(200).result("{ \"gameID\": }");
+//        } catch (Exception ex) {
+//            String msg = ex.getMessage();
+//            if ("bad request".equals(msg)) {
+//                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+//            } else if ("unauthorized".equals(msg)) {
+//                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+//            } else {
+//                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+//            }
+//        }
+//    }
+
+    private void joinGame(Context ctx) throws Exception {
+        try {
+            String token = ctx.header("authorization");
+            var serializer = new Gson();
+            JoinGameRequest request = serializer.fromJson(ctx.body(), JoinGameRequest.class);
+            userService.joinGame(token, request);
+            ctx.status(200).result("{}");
+        } catch (Exception ex) {
+            String msg = ex.getMessage();
+            if ("bad request".equals(msg)) {
+                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+            } else if ("already taken".equals(msg)) {
+                ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
+            } else if ("unauthorized".equals(msg)) {
+                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+            } else {
+                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+            }
+        }
+    }
 
     public int run(int desiredPort) {
         server.start(desiredPort);

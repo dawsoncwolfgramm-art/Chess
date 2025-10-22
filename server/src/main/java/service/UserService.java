@@ -4,9 +4,9 @@ import chess.ChessGame;
 import datamodel.AuthData;
 import dataaccess.DataAccess;
 import datamodel.GameData;
+import datamodel.JoinGameRequest;
 import datamodel.UserData;
 
-import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -96,5 +96,47 @@ public class UserService {
             num++;
         }
         return gameData.gameID();
+    }
+
+//    public List<GameData> listGames(String authToken) throws Exception {
+//        if (authToken == null || authToken.isBlank()) {
+//            throw new Exception("bad request");
+//        }
+//        if (dataAccess.getAuth(authToken) == null) {
+//            throw new Exception("unauthorized");
+//        }
+//
+//        return new ArrayList<>(dataAccess.getAllGames());
+//    }
+
+    public void joinGame(String authToken, JoinGameRequest request) throws Exception {
+        if (authToken == null || authToken.isBlank()) {
+            throw new Exception("bad request");
+        }
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new Exception("unauthorized");
+        }
+        if (request == null || request.playerColor == null || request.gameID == null) {
+            throw new Exception("bad request");
+        }
+
+
+        int gameId = request.gameID;
+        GameData game = dataAccess.getGame(gameId);
+        if (request.playerColor().equalsIgnoreCase("white")) {
+            if (game.whiteUsername() != null) {
+
+            }
+        }
+        if (game == null) {
+            throw new Exception("bad request");
+        }
+        AuthData player = dataAccess.getPlayerName(authToken);
+
+        String colorUsername = dataAccess.isColorNull(request.gameID, request.playerColor);
+
+
+        // get players username from his authToken
+        // insert his username in the game over white
     }
 }
