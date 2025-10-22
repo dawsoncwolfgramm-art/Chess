@@ -65,21 +65,8 @@ public class MemoryDataAccess implements DataAccess {
         return auth.get(authToken);
     }
 
-    @Override
-    public String isColorNull(Integer gameId, String color) {
-        if (color.equalsIgnoreCase("white")) {
-            return game.get(gameId).whiteUsername();
-        }
-        if (color.equalsIgnoreCase("black")) {
-            return game.get(gameId).blackUsername();
-        }
-    }
-    
-
-    @Override
-    public void updateGame(int gameId, String whiteUsername,
-                           String blackUsername, String gameName, ChessGame game) {
-
+    public void updateGame(int gameId, String whiteUsername, String blackUsername, String gameName) {
+        game.put(gameId, new GameData(gameId, whiteUsername, blackUsername, gameName, null));
     }
 
 }

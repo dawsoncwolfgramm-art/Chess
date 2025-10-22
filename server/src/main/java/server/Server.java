@@ -32,14 +32,14 @@ public class Server {
         server.post("/session", this::login);
         server.delete("/session", this::logout);
         server.post("/game", this::createGame);
-//        server.get("/game", this::listGames);
+        server.get("/game", this::listGames);
         server.put("/game", this::joinGame);
 
         // Register your endpoints and exception handlers here.
 
     }
 
-    private void register(Context ctx) throws Exception {
+    private void register(Context ctx) {
         try {
             var serializer = new Gson();
             String requestJson = ctx.body();
@@ -59,7 +59,7 @@ public class Server {
         }
     }
 
-    private void login(Context ctx) throws Exception {
+    private void login(Context ctx) {
         try {
             var serializer = new Gson();
             String requestJson = ctx.body();
@@ -79,7 +79,7 @@ public class Server {
         }
     }
 
-    private void logout(Context ctx) throws Exception {
+    private void logout(Context ctx) {
         try {
             String data = ctx.header("authorization");
             userService.logout(data);
@@ -97,7 +97,7 @@ public class Server {
     }
 
 
-    private void createGame(Context ctx) throws Exception {
+    private void createGame(Context ctx) {
         try {
             String data = ctx.header("authorization");
             var serializer = new Gson();
@@ -117,32 +117,32 @@ public class Server {
         }
     }
 
-//    private void listGames(Context ctx) throws Exception {
-//        try {
-//            String token = ctx.header("authorization");
-//            List<GameData> gameList = userService.listGames(token);
-//            for (GameData g : gameList) {
-//                System.out.println(g);
-//            }
-//            ctx.status(200).result("{ \"gameID\": }");
-//        } catch (Exception ex) {
-//            String msg = ex.getMessage();
-//            if ("bad request".equals(msg)) {
-//                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-//            } else if ("unauthorized".equals(msg)) {
-//                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-//            } else {
-//                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-//            }
-//        }
-//    }
+    private void listGames(Context ctx) {
+        try {
+            String token = ctx.header("authorization");
+            List<GameData> gameList = userService.listGames(token);
+            for (GameData g : gameList) {
+                System.out.println(g);
+            }
+            ctx.status(200).result("{ \"gameID\": }");
+        } catch (Exception ex) {
+            String msg = ex.getMessage();
+            if ("bad request".equals(msg)) {
+                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+            } else if ("unauthorized".equals(msg)) {
+                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+            } else {
+                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+            }
+        }
+    }
 
-    private void joinGame(Context ctx) throws Exception {
+    private void joinGame(Context ctx) {
         try {
             String token = ctx.header("authorization");
             var serializer = new Gson();
-            JoinGameRequest request = serializer.fromJson(ctx.body(), JoinGameRequest.class);
-            userService.joinGame(token, request);
+            JoinGameRequest joinGameReq = serializer.fromJson(ctx.body(), JoinGameRequest.class);
+            userService.joinGame(token, joinGameReq);
             ctx.status(200).result("{}");
         } catch (Exception ex) {
             String msg = ex.getMessage();

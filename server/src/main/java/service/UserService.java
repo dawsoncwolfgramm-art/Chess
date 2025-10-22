@@ -98,45 +98,44 @@ public class UserService {
         return gameData.gameID();
     }
 
-//    public List<GameData> listGames(String authToken) throws Exception {
-//        if (authToken == null || authToken.isBlank()) {
-//            throw new Exception("bad request");
-//        }
-//        if (dataAccess.getAuth(authToken) == null) {
-//            throw new Exception("unauthorized");
-//        }
-//
-//        return new ArrayList<>(dataAccess.getAllGames());
-//    }
-
-    public void joinGame(String authToken, JoinGameRequest request) throws Exception {
+    public List<GameData> listGames(String authToken) throws Exception {
         if (authToken == null || authToken.isBlank()) {
             throw new Exception("bad request");
         }
         if (dataAccess.getAuth(authToken) == null) {
             throw new Exception("unauthorized");
         }
-        if (request == null || request.playerColor == null || request.gameID == null) {
+
+        return new ArrayList<>(dataAccess.getAllGames());
+    }
+
+    public void joinGame(String authToken, JoinGameRequest joinData) throws Exception {
+        if (authToken == null || authToken.isBlank()) {
+            throw new Exception("bad request");
+        }
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new Exception("unauthorized");
+        }
+        if (joinData == null || joinData.playerColor == null || joinData.gameID == null) {
             throw new Exception("bad request");
         }
 
-
-        int gameId = request.gameID;
-        GameData game = dataAccess.getGame(gameId);
-        if (request.playerColor().equalsIgnoreCase("white")) {
-            if (game.whiteUsername() != null) {
-
-            }
-        }
-        if (game == null) {
-            throw new Exception("bad request");
-        }
+        int gameId = joinData.gameID;
         AuthData player = dataAccess.getPlayerName(authToken);
+        GameData game = dataAccess.getGame(gameId);
+        if (joinData.playerColor().equalsIgnoreCase("white")) {
+            if (game.whiteUsername() != null) {
+                throw new Exception("already taken");
+            }
+            dataAccess.updateGame(joinData.gameID, player.username(), game.blackUsername(), game.gameName());
+        } else if (joinData.playerColor().equalsIgnoreCase("black")) {
+            if (game.blackUsername() != null) {
+                throw new Exception("already taken");
+            }
+            dataAccess.updateGame(joinData.gameID, game.whiteUsername(), player.username(), game.gameName());
 
-        String colorUsername = dataAccess.isColorNull(request.gameID, request.playerColor);
-
-
-        // get players username from his authToken
-        // insert his username in the game over white
+        } else {
+            throw new Exception("bad request");
+        }
     }
 }
