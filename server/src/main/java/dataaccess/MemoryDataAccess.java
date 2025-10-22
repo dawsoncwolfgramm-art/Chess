@@ -6,8 +6,10 @@ import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.AuthData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class MemoryDataAccess implements DataAccess {
 
@@ -51,8 +53,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public Collection<GameData> getAllGames() {
-        return game.values();
+    public List<GameData> getAllGames() {
+        return new ArrayList<>(game.values());
     }
 
     @Override

@@ -3,6 +3,7 @@ package dataaccess;
 import datamodel.*;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface DataAccess {
     void clear();
@@ -19,7 +20,7 @@ public interface DataAccess {
 
     void addGame(GameData gameData);
 
-    Collection<GameData> getAllGames();
+    List<GameData> getAllGames();
 
     GameData getGame(int gameId);
 

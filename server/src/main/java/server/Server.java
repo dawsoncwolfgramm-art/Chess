@@ -39,6 +39,11 @@ public class Server {
 
     }
 
+    private void clear(Context ctx) {
+        userService.clear();
+        ctx.status(200).result("{}");
+    }
+
     private void register(Context ctx) {
         try {
             var serializer = new Gson();
@@ -120,9 +125,10 @@ public class Server {
     private void listGames(Context ctx) {
         try {
             String token = ctx.header("authorization");
+            var serializer = new Gson();
             List<GameData> gameList = userService.listGames(token);
-            
-            ctx.status(200).result("{ \"gameID\": }");
+            var returnString = String.format("{ \"games\": %s }", serializer.toJson(gameList));
+            ctx.status(200).result(returnString);
         } catch (Exception ex) {
             String msg = ex.getMessage();
             if ("bad request".equals(msg)) {
