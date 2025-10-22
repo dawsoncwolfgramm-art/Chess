@@ -14,4 +14,8 @@ public interface DataAccess {
     void addAuth(AuthData authData);
 
     void deleteAuth(String auth);
+
+    void addGame(GameData gameData);
+
+//    GameData getGame()
 }

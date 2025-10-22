@@ -1,9 +1,11 @@
 package server;
 
+
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
+import datamodel.GameData;
 import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -96,9 +98,23 @@ public class Server {
     private void createGame(Context ctx) throws Exception {
         try {
             String data = ctx.header("authorization");
-            userService.
+            var serializer = new Gson();
+            String requestJson = ctx.body();
+            var game = serializer.fromJson(requestJson, GameData.class);
+            int gameId = userService.createGame(data, game);
+            ctx.status(200).result("{ \"gameID\": " + gameId + " }");
+        } catch (Exception ex) {
+            String msg = ex.getMessage();
+            if ("bad request".equals(msg)) {
+                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+            } else if ("unauthorized".equals(msg)) {
+                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+            } else {
+                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+            }
         }
     }
+
 
     public int run(int desiredPort) {
         server.start(desiredPort);
