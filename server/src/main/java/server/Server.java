@@ -121,9 +121,7 @@ public class Server {
         try {
             String token = ctx.header("authorization");
             List<GameData> gameList = userService.listGames(token);
-            for (GameData g : gameList) {
-                System.out.println(g);
-            }
+            
             ctx.status(200).result("{ \"gameID\": }");
         } catch (Exception ex) {
             String msg = ex.getMessage();
