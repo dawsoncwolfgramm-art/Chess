@@ -58,9 +58,12 @@ public class ChessPiece {
         return switch (getPieceType()) {
             case BISHOP -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
             case ROOK -> movesFrom(board, myPosition, true, new int[][]{{0, 1}, {0, -1}, {-1, 0}, {1, 0}});
-            case QUEEN -> movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
-            case KING -> movesFrom(board, myPosition, false, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
-            case KNIGHT -> movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}});
+            case QUEEN ->
+                    movesFrom(board, myPosition, true, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
+            case KING ->
+                    movesFrom(board, myPosition, false, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 0}, {1, 0}});
+            case KNIGHT ->
+                    movesFrom(board, myPosition, false, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}});
             case PAWN -> movesPawn(board, myPosition);
 //            default:
 //                new HashSet<>();
@@ -83,9 +86,7 @@ public class ChessPiece {
 
                 if (occupied == null) {
                     moves.add(new ChessMove(from, to, null));
-                }
-
-                else {
+                } else {
                     if (occupied.getTeamColor() != getTeamColor()) {
                         moves.add(new ChessMove(from, to, null));
                     }
@@ -96,7 +97,7 @@ public class ChessPiece {
                     row = row + d[0];
                     col = col + d[1];
 
-                }else {
+                } else {
                     break;
                 }
             }
@@ -141,8 +142,7 @@ public class ChessPiece {
         int arrivePromote;
         if (getTeamColor() == ChessGame.TeamColor.WHITE) {
             arrivePromote = 8;
-        }
-        else {
+        } else {
             arrivePromote = 1;
         }
         if (to.getRow() == arrivePromote) {
@@ -151,18 +151,17 @@ public class ChessPiece {
             moves.add(new ChessMove(from, to, ChessPiece.PieceType.KNIGHT));
             moves.add(new ChessMove(from, to, ChessPiece.PieceType.ROOK));
 
-        }
-        else {
+        } else {
             moves.add(new ChessMove(from, to, null));
         }
         return moves;
     }
 
-    private boolean inBounds (int row, int col) {
+    private boolean inBounds(int row, int col) {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
-    private boolean inBounds (ChessPosition position) {
+    private boolean inBounds(ChessPosition position) {
         return inBounds(position.getRow(), position.getColumn());
     }
 

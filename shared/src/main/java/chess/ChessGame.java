@@ -45,7 +45,6 @@ public class ChessGame {
     }
 
 
-
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -66,7 +65,6 @@ public class ChessGame {
                 legalMoves.add(move);
             }
         }
-        // if king isnt in check mate add it to legal moves
         return legalMoves;
     }
 
@@ -79,8 +77,7 @@ public class ChessGame {
         board.addPiece(from, null);
         if (move.getPromotionPiece() != null) {
             board.addPiece(to, new ChessPiece(moveFrom.getTeamColor(), move.getPromotionPiece()));
-        }
-        else {
+        } else {
             board.addPiece(to, moveFrom);
         }
 
@@ -91,6 +88,7 @@ public class ChessGame {
 
         return !inCheck;
     }
+
     /**
      * Makes a move in a chess game
      *
@@ -120,20 +118,12 @@ public class ChessGame {
         board.addPiece(start, null);
         if (move.getPromotionPiece() != null) {
             board.addPiece(end, new ChessPiece(moveFrom.getTeamColor(), move.getPromotionPiece()));
-        }
-        else {
+        } else {
             board.addPiece(end, moveFrom);
         }
 
         var oppColor = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         setTeamTurn(oppColor);
-
-        // start exceipton if its null and on the right piece color so they aren't moving pieces that aren't their own.
-        // if there is a piece that is empty do no moves.
-        // added a piece at the end position and set the start position to null
-        // if i have a king move to end position and the start position is null.
-        // its not the teams turn if you pick on a piece that isn't theirs and make a move
-        // if you deal with a promotion of a pawn promote then switch turns after each move.
     }
 
     /**
@@ -144,7 +134,9 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor myTeam) {
         ChessPosition kingPos = findKing(myTeam);
-        if (kingPos == null) return false;
+        if (kingPos == null) {
+            return false;
+        }
         ChessPiece king = board.getPiece(kingPos);
 
         TeamColor enemyTeam = (myTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
@@ -153,7 +145,9 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
 
-                if (piece == null || piece.getTeamColor() != enemyTeam) continue;
+                if (piece == null || piece.getTeamColor() != enemyTeam) {
+                    continue;
+                }
 
                 for (ChessMove attack : piece.pieceMoves(board, pos)) {
                     ChessPosition end = attack.getEndPosition();
@@ -165,8 +159,6 @@ public class ChessGame {
             }
         }
         return false;
-        //checking every piece to see if it attacks the king
-        //know where the king is and is there another piece attacking the king say true
     }
 
     private ChessPosition findKing(TeamColor myTeam) {
@@ -189,22 +181,24 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor myTeam) {
-        if (!isInCheck(myTeam)) return false;
+        if (!isInCheck(myTeam)) {
+            return false;
+        }
         for (int x = 1; x <= 8; x++) {
             for (int y = 1; y <= 8; y++) {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece == null || piece.getTeamColor() != myTeam) continue;
+                if (piece == null || piece.getTeamColor() != myTeam) {
+                    continue;
+                }
 
                 var moves = validMoves(new ChessPosition(x, y));
-                if (moves != null && !moves.isEmpty()) return false;
+                if (moves != null && !moves.isEmpty()) {
+                    return false;
+                }
             }
         }
         return true;
-
-        //king has to be in check
-        // no legal moves on the board.your pieces have legal moves.
-        // if king is in check can he move? can king escape or king can kill them. valid moves from others cannot ==
     }
 
     /**
@@ -215,20 +209,24 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor myTeam) {
-        if (isInCheck(myTeam)) return false;
+        if (isInCheck(myTeam)) {
+            return false;
+        }
         for (int x = 1; x <= 8; x++) {
             for (int y = 1; y <= 8; y++) {
                 ChessPosition pos = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece == null || piece.getTeamColor() != myTeam) continue;
+                if (piece == null || piece.getTeamColor() != myTeam) {
+                    continue;
+                }
 
                 var moves = validMoves(new ChessPosition(x, y));
-                if (moves != null && !moves.isEmpty()) return false;
+                if (moves != null && !moves.isEmpty()) {
+                    return false;
+                }
             }
         }
         return true;
-        // check if king is check return false
-        // not being attacked but cant move anywhere.
     }
 
     /**
