@@ -90,14 +90,7 @@ public class Server {
             userService.logout(data);
             ctx.status(200).result("{}");
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else if ("unauthorized".equals(msg)) {
-                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -111,14 +104,7 @@ public class Server {
             int gameId = userService.createGame(data, game);
             ctx.status(200).result("{ \"gameID\": " + gameId + " }");
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else if ("unauthorized".equals(msg)) {
-                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -130,14 +116,7 @@ public class Server {
             var returnString = String.format("{ \"games\": %s }", serializer.toJson(gameList));
             ctx.status(200).result(returnString);
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else if ("unauthorized".equals(msg)) {
-                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -159,6 +138,17 @@ public class Server {
             } else {
                 ctx.status(500).result("{ \"message\": \"Error: server down\" }");
             }
+        }
+    }
+
+    private void respondError(Context ctx, Exception ex) {
+        String msg = ex.getMessage();
+        if ("bad request".equals(msg)) {
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
+        } else if ("unauthorized".equals(msg)) {
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+        } else {
+            ctx.status(500).result("{ \"message\": \"Error: server down\" }");
         }
     }
 
