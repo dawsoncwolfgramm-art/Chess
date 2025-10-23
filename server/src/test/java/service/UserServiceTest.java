@@ -3,6 +3,7 @@ package service;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.GameData;
+import datamodel.JoinGameRequest;
 import datamodel.UserData;
 import org.junit.jupiter.api.Test;
 
@@ -97,12 +98,11 @@ public class UserServiceTest {
         var da = new MemoryDataAccess();
         var service = new UserService(da);
         AuthData registerRes = service.register(user);
-        AuthData res = service.login(user);
-        assertEquals(res.username(), user.username());
-        assertNotNull(res.authToken());
-        assertNull(da.getUser(res.authToken()));
-        service.logout(res.authToken());
-        assertNull(da.getAuth(res.authToken()));
+        assertEquals(registerRes.username(), user.username());
+        assertNotNull(registerRes.authToken());
+        assertNull(da.getUser(registerRes.authToken()));
+        service.logout(registerRes.authToken());
+        assertNull(da.getAuth(registerRes.authToken()));
     }
 
     @Test
@@ -126,4 +126,80 @@ public class UserServiceTest {
         var auth = service.register(user);
         assertEquals(1, service.createGame(auth.authToken(), game));
     }
+
+    @Test
+    void createGamenameNull() throws Exception {
+        var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
+        var game = new GameData(0, null, null, null, null);
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        var auth = service.register(user);
+        assertThrows(Exception.class, () -> {
+            service.createGame(auth.authToken(), game);
+        });
+    }
+
+
+    @Test
+    void joinGameSuccess() throws Exception {
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
+        AuthData registerRes = service.register(user);
+        GameData game = new GameData(1, null, null, "lonly", null);
+        service.createGame(registerRes.authToken(), game);
+        JoinGameRequest joinGameReq = new JoinGameRequest("white", 1);
+        service.joinGame(registerRes.authToken(), joinGameReq);
+        assertNotNull(da.getGame(game.gameID()).whiteUsername());
+    }
+
+    @Test
+    void joinGameFail() throws Exception {
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
+        AuthData registerRes = service.register(user);
+        GameData game = new GameData(1, null, null, "lonly", null);
+        service.createGame(registerRes.authToken(), game);
+        JoinGameRequest joinGameReq = new JoinGameRequest("green", 1);
+        assertThrows(Exception.class, () -> {
+            service.joinGame(registerRes.authToken(), joinGameReq);
+        });
+    }
+
+    @Test
+    void listGameSuccess() throws Exception {
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
+        AuthData registerRes = service.register(user);
+        GameData game = new GameData(1, null, null, "lonly", null);
+        service.createGame(registerRes.authToken(), game);
+        JoinGameRequest joinGameReq = new JoinGameRequest("white", 1);
+        service.joinGame(registerRes.authToken(), joinGameReq);
+        GameData game2 = new GameData(2, null, null, "sturat", null);
+        service.createGame(registerRes.authToken(), game2);
+        assertEquals(2, service.listGames(registerRes.authToken()).size());
+    }
+
+    @Test
+    void listGameFail() throws Exception {
+        var da = new MemoryDataAccess();
+        var service = new UserService(da);
+        var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
+        AuthData registerRes = service.register(user);
+        GameData game = new GameData(1, null, null, "lonly", null);
+        service.createGame(registerRes.authToken(), game);
+        JoinGameRequest joinGameReq = new JoinGameRequest("white", 1);
+        service.joinGame(registerRes.authToken(), joinGameReq);
+        GameData game2 = new GameData(2, null, null, "sturat", null);
+        GameData game3 = new GameData(3, null, null, "dawsoin", null);
+        service.createGame(registerRes.authToken(), game2);
+        service.createGame(registerRes.authToken(), game3);
+        service.logout(registerRes.authToken());
+        assertThrows(Exception.class, () -> {
+            service.listGames(registerRes.authToken());
+        });
+    }
+
 }
