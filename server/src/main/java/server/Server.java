@@ -53,14 +53,7 @@ public class Server {
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("already taken".equals(msg)) {
-                ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
-            } else if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -73,14 +66,7 @@ public class Server {
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else if ("unauthorized".equals(msg)) {
-                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -128,16 +114,7 @@ public class Server {
             userService.joinGame(token, joinGameReq);
             ctx.status(200).result("{}");
         } catch (Exception ex) {
-            String msg = ex.getMessage();
-            if ("bad request".equals(msg)) {
-                ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-            } else if ("already taken".equals(msg)) {
-                ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
-            } else if ("unauthorized".equals(msg)) {
-                ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-            } else {
-                ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-            }
+            respondError(ctx, ex);
         }
     }
 
@@ -147,6 +124,8 @@ public class Server {
             ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } else if ("unauthorized".equals(msg)) {
             ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
+        } else if ("already taken".equals(msg)) {
+            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
         } else {
             ctx.status(500).result("{ \"message\": \"Error: server down\" }");
         }
