@@ -30,7 +30,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void RegisterTwice() throws Exception {
+    void registerTwice() throws Exception {
         var user = new UserData("jow", "j@j", "asdf@gmail.com");
         var at = "xyz";
 
@@ -44,7 +44,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void RegisterNoEmail() throws Exception {
+    void registerNoEmail() throws Exception {
         var user = new UserData("daws", "D@ws0n", "");
 
         var at = "xyz";
@@ -57,7 +57,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void LoginNoPassword() throws Exception {
+    void loginNoPassword() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
         var user2 = new UserData("daws", "Dawson", "");
         var da = new MemoryDataAccess();
@@ -69,7 +69,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void LoginNoRegister() throws Exception {
+    void loginNoRegister() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
         var da = new MemoryDataAccess();
         var service = new UserService(da);
