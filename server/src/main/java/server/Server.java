@@ -80,7 +80,6 @@ public class Server {
         }
     }
 
-
     private void createGame(Context ctx) {
         try {
             String data = ctx.header("authorization");
