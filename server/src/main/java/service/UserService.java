@@ -6,6 +6,7 @@ import dataaccess.DataAccess;
 import datamodel.GameData;
 import datamodel.JoinGameRequest;
 import datamodel.UserData;
+import org.mindrot.jbcrypt.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class UserService {
         if (dataAccess.getUser(user.username()) != null) {
             throw new Exception("already taken");
         }
+        var hashPwd = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         dataAccess.createUser(user);
         AuthData authData = new AuthData(user.username(), generateAuthToken());
         dataAccess.addAuth(authData);
