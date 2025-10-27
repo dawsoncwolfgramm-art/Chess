@@ -35,7 +35,8 @@ public class UserService {
             throw new Exception("already taken");
         }
         var hashPwd = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-        dataAccess.createUser(user);
+        var storeUser = new UserData(user.username(), user.email(), hashPwd);
+        dataAccess.createUser(storeUser);
         AuthData authData = new AuthData(user.username(), generateAuthToken());
         dataAccess.addAuth(authData);
         return authData;
