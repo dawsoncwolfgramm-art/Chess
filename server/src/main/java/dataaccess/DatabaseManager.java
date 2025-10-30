@@ -28,6 +28,7 @@ public class DatabaseManager {
             throw new DataAccessException("failed to create database", ex);
         }
     }
+    
 
     /**
      * Create a connection to the database and sets the catalog based upon the

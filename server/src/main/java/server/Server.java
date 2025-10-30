@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.JoinGameRequest;
@@ -23,7 +24,11 @@ public class Server {
 
 
     public Server() {
-        dataAccess = new MemoryDataAccess();
+        try {
+            dataAccess = new MySqlDataAccess();
+        } catch (Exception ex) {
+            dataAccess = new MemoryDataAccess();
+        }
         userService = new UserService(dataAccess);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
