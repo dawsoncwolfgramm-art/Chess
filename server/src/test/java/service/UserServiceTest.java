@@ -17,7 +17,7 @@ public class UserServiceTest {
 
     @Test
     void register() throws Exception {
-        var user = new UserData("jow", "j@j", "j");
+        var user = new UserData("jow", "j", "j@j");
         var at = "xyz";
 
         var da = new MemoryDataAccess();

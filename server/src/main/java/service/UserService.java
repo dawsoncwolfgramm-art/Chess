@@ -35,7 +35,7 @@ public class UserService {
             throw new Exception("already taken");
         }
         var hashPwd = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-        var storeUser = new UserData(user.username(), user.email(), hashPwd);
+        var storeUser = new UserData(user.username(), hashPwd, user.email());
         dataAccess.createUser(storeUser);
         AuthData authData = new AuthData(user.username(), generateAuthToken());
         dataAccess.addAuth(authData);
@@ -51,7 +51,7 @@ public class UserService {
             throw new Exception("unauthorized");
         }
         UserData userData = dataAccess.getUser(user.username());
-        if (!user.password().equals(userData.password())) {
+        if (!BCrypt.checkpw(user.password(), userData.password())) {
             throw new Exception("unauthorized");
         }
         AuthData authData = new AuthData(user.username(), generateAuthToken());
