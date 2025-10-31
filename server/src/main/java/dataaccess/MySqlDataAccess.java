@@ -20,7 +20,6 @@ public class MySqlDataAccess implements DataAccess {
         configureDatabase();
     }
 
-
     public void clear() {
         var statement = "TRUNICATE chess";
     }
