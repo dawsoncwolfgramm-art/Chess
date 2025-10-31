@@ -45,7 +45,7 @@ public class DatabaseManager {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-            conn.setCatalog(databaseName);
+            conn.setCatalog( );
             return conn;
         } catch (SQLException ex) {
             throw new DataAccessException("failed to get connection", ex);
