@@ -1,15 +1,11 @@
 package dataaccess;
 
 
-import chess.ChessGame;
 import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.AuthData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class MemoryDataAccess implements DataAccess {
 
@@ -28,8 +24,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUser(String username) {
-        return users.get(username);
+    public Optional<UserData> getUser(String username) {
+        return Optional.ofNullable(users.get(username));
     }
 
     @Override
@@ -38,8 +34,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
-        return auth.get(authToken);
+    public Optional<AuthData> getAuth(String authToken) {
+        return Optional.ofNullable(auth.get(authToken));
     }
 
     @Override

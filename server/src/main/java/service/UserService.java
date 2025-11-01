@@ -2,11 +2,8 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import datamodel.AuthData;
+import datamodel.*;
 import dataaccess.DataAccess;
-import datamodel.GameData;
-import datamodel.JoinGameRequest;
-import datamodel.UserData;
 import org.mindrot.jbcrypt.*;
 
 import java.util.ArrayList;
@@ -38,7 +35,7 @@ public class UserService {
         var hashPwd = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         var storeUser = new UserData(user.username(), hashPwd, user.email());
         dataAccess.createUser(storeUser);
-        AuthData authData = new AuthData(user.username(), generateAuthToken());
+        var authData = new AuthData(user.username(), generateAuthToken());
         dataAccess.addAuth(authData);
         return authData;
     }
@@ -51,9 +48,9 @@ public class UserService {
         if (dataAccess.getUser(user.username()).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
-        var userData = dataAccess.getUser(user.username());
-        UserData optionalU = userData.get();
-        if (!BCrypt.checkpw(user.password(), optionalU.password())) {
+        var optUserData = dataAccess.getUser(user.username());
+        UserData userData = optUserData.get();
+        if (!BCrypt.checkpw(user.password(), userData.password())) {
             throw new UnauthorizedException("unauthorized");
         }
         AuthData authData = new AuthData(user.username(), generateAuthToken());
@@ -66,7 +63,7 @@ public class UserService {
             throw new UnauthorizedException("unauthorized");
         }
 
-        if (dataAccess.getAuth(authToken) == null) {
+        if (dataAccess.getAuth(authToken).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
         dataAccess.deleteAuth(authToken);
@@ -81,7 +78,7 @@ public class UserService {
         if (authToken == null || authToken.isBlank()) {
             throw new BadRequestException("bad request");
         }
-        if (dataAccess.getAuth(authToken) == null) {
+        if (dataAccess.getAuth(authToken).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
         if (userGameData.gameName() == null) {
@@ -107,7 +104,7 @@ public class UserService {
         if (authToken == null || authToken.isBlank()) {
             throw new BadRequestException("bad request");
         }
-        if (dataAccess.getAuth(authToken) == null) {
+        if (dataAccess.getAuth(authToken).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
 
@@ -118,7 +115,7 @@ public class UserService {
         if (authToken == null || authToken.isBlank()) {
             throw new BadRequestException("bad request");
         }
-        if (dataAccess.getAuth(authToken) == null) {
+        if (dataAccess.getAuth(authToken).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
         if (joinData == null || joinData.playerColor == null || joinData.gameID == null) {

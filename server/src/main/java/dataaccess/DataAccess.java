@@ -12,7 +12,7 @@ public interface DataAccess {
 
     Optional<UserData> getUser(String username) throws Exception;
 
-    AuthData getAuth(String auth) throws Exception;
+    Optional<AuthData> getAuth(String auth) throws Exception;
 
     void addAuth(AuthData authData) throws Exception;
 
