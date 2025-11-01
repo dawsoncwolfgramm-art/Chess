@@ -9,6 +9,9 @@ import datamodel.UserData;
 import datamodel.JoinGameRequest;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.AlreadyTakenException;
+import service.BadRequestException;
+import service.UnauthorizedException;
 import service.UserService;
 
 import javax.xml.crypto.Data;
@@ -45,8 +48,13 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        userService.clear();
-        ctx.status(200).result("{}");
+        try {
+            userService.clear();
+            ctx.status(200).result("{}");
+        } catch (Exception ex) {
+            ctx.status(500).json(Map.of("message", "Error: " + ex.getMessage()));
+        }
+
     }
 
     private void register(Context ctx) {
@@ -57,6 +65,10 @@ public class Server {
             var authData = userService.register(user);
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
+        } catch (BadRequestException ex) {
+            ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (AlreadyTakenException ex) {
+            ctx.status(403).json(Map.of("message", "Error: already taken"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -70,6 +82,10 @@ public class Server {
             var authData = userService.login(user);
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
+        } catch (BadRequestException ex) {
+            ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (UnauthorizedException ex) {
+            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -80,6 +96,8 @@ public class Server {
             String data = ctx.header("authorization");
             userService.logout(data);
             ctx.status(200).result("{}");
+        } catch (UnauthorizedException ex) {
+            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -93,6 +111,10 @@ public class Server {
             var game = serializer.fromJson(requestJson, GameData.class);
             int gameId = userService.createGame(data, game);
             ctx.status(200).result("{ \"gameID\": " + gameId + " }");
+        } catch (BadRequestException ex) {
+            ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (UnauthorizedException ex) {
+            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -105,6 +127,10 @@ public class Server {
             List<GameData> gameList = userService.listGames(token);
             var returnString = String.format("{ \"games\": %s }", serializer.toJson(gameList));
             ctx.status(200).result(returnString);
+        } catch (BadRequestException ex) {
+            ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (UnauthorizedException ex) {
+            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -117,6 +143,12 @@ public class Server {
             JoinGameRequest joinGameReq = serializer.fromJson(ctx.body(), JoinGameRequest.class);
             userService.joinGame(token, joinGameReq);
             ctx.status(200).result("{}");
+        } catch (BadRequestException ex) {
+            ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (UnauthorizedException ex) {
+            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+        } catch (AlreadyTakenException ex) {
+            ctx.status(403).json(Map.of("message", "Error: already taken"));
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -124,15 +156,7 @@ public class Server {
 
     private void respondError(Context ctx, Exception ex) {
         String msg = ex.getMessage();
-        if ("bad request".equals(msg)) {
-            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
-        } else if ("unauthorized".equals(msg)) {
-            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
-        } else if ("already taken".equals(msg)) {
-            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
-        } else {
-            ctx.status(500).result("{ \"message\": \"Error: server down\" }");
-        }
+        ctx.status(500).result("{ \"message\": \"Error: server down\" }");
     }
 
     public int run(int desiredPort) {

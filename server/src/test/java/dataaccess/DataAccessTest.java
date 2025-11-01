@@ -8,17 +8,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class DataAccessTest {
 
     @Test
-    void clear() {
+    void clear() throws Exception {
         var user = new UserData("jow", "j@j", "j");
-        DataAccess da = new MemoryDataAccess();
+        DataAccess da = new MySqlDataAccess();
         da.createUser(user);
         da.clear();
         assertNull(da.getUser(user.username()));
-
     }
 
     @Test
     void createUser() {
+
     }
 
     @Test
