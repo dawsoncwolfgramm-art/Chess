@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import datamodel.AuthData;
 import dataaccess.DataAccess;
 import datamodel.GameData;
@@ -14,25 +15,25 @@ import java.util.UUID;
 
 public class UserService {
     private final DataAccess dataAccess;
-    private List<Integer> gamesIds = new ArrayList();
+    private final List<Integer> gamesIds = new ArrayList<>();
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 
-    public void clear() {
+    public void clear() throws Exception {
         dataAccess.clear();
     }
 
 
     public AuthData register(UserData user) throws Exception {
-        if (user == null || user.username() == null || user.username().isBlank() ||
+        if (user.username() == null || user.username().isBlank() ||
                 user.email() == null || user.email().isBlank() ||
                 user.password() == null || user.password().isBlank()) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
-        if (dataAccess.getUser(user.username()) != null) {
-            throw new Exception("already taken");
+        if (dataAccess.getUser(user.username()).isPresent()) {
+            throw new AlreadyTakenException("already taken");
         }
         var hashPwd = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         var storeUser = new UserData(user.username(), hashPwd, user.email());
@@ -45,14 +46,15 @@ public class UserService {
     public AuthData login(UserData user) throws Exception {
         if (user == null || user.username() == null || user.username().isBlank() ||
                 user.password() == null || user.password().isBlank()) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
-        if (dataAccess.getUser(user.username()) == null) {
-            throw new Exception("unauthorized");
+        if (dataAccess.getUser(user.username()).isEmpty()) {
+            throw new UnauthorizedException("unauthorized");
         }
-        UserData userData = dataAccess.getUser(user.username());
-        if (!BCrypt.checkpw(user.password(), userData.password())) {
-            throw new Exception("unauthorized");
+        var userData = dataAccess.getUser(user.username());
+        UserData optionalU = userData.get();
+        if (!BCrypt.checkpw(user.password(), optionalU.password())) {
+            throw new UnauthorizedException("unauthorized");
         }
         AuthData authData = new AuthData(user.username(), generateAuthToken());
         dataAccess.addAuth(authData);
@@ -61,11 +63,11 @@ public class UserService {
 
     public void logout(String authToken) throws Exception {
         if (authToken == null || authToken.isBlank()) {
-            throw new Exception("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
 
         if (dataAccess.getAuth(authToken) == null) {
-            throw new Exception("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
         dataAccess.deleteAuth(authToken);
     }
@@ -77,13 +79,13 @@ public class UserService {
 
     public Integer createGame(String authToken, GameData userGameData) throws Exception {
         if (authToken == null || authToken.isBlank()) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
         if (dataAccess.getAuth(authToken) == null) {
-            throw new Exception("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
         if (userGameData.gameName() == null) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
 
         GameData gameData;
@@ -103,10 +105,10 @@ public class UserService {
 
     public List<GameData> listGames(String authToken) throws Exception {
         if (authToken == null || authToken.isBlank()) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
         if (dataAccess.getAuth(authToken) == null) {
-            throw new Exception("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
 
         return new ArrayList<>(dataAccess.getAllGames());
@@ -114,13 +116,13 @@ public class UserService {
 
     public void joinGame(String authToken, JoinGameRequest joinData) throws Exception {
         if (authToken == null || authToken.isBlank()) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
         if (dataAccess.getAuth(authToken) == null) {
-            throw new Exception("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
         if (joinData == null || joinData.playerColor == null || joinData.gameID == null) {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
 
         int gameId = joinData.gameID;
@@ -128,17 +130,17 @@ public class UserService {
         GameData game = dataAccess.getGame(gameId);
         if (joinData.playerColor().equalsIgnoreCase("white")) {
             if (game.whiteUsername() != null) {
-                throw new Exception("already taken");
+                throw new AlreadyTakenException("already taken");
             }
             dataAccess.updateGame(joinData.gameID, player.username(), game.blackUsername(), game.gameName());
         } else if (joinData.playerColor().equalsIgnoreCase("black")) {
             if (game.blackUsername() != null) {
-                throw new Exception("already taken");
+                throw new AlreadyTakenException("already taken");
             }
             dataAccess.updateGame(joinData.gameID, game.whiteUsername(), player.username(), game.gameName());
 
         } else {
-            throw new Exception("bad request");
+            throw new BadRequestException("bad request");
         }
     }
 }
