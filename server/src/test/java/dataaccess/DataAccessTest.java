@@ -56,5 +56,20 @@ class DataAccessTest {
         assertNotNull(da.getUser(authData.authToken()));
     }
 
+    @Test
+    void deleteAuth() throws Exception {
+        AuthData auth = new AuthData("dawson", "12345678");
+        AuthData authTwo = new AuthData("lauren", "87654321");
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addAuth(auth);
+        da.addAuth(authTwo);
+        da.deleteAuth(auth.authToken());
+        var optAuthData = da.getAuth(auth.authToken());
+        assertEquals(Optional.empty(), optAuthData);
+        var optAuthDataTwo = da.getAuth((authTwo.authToken()));
+        assertTrue(optAuthDataTwo.isPresent());
+    }
+
 
 }
