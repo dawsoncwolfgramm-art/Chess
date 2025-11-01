@@ -19,8 +19,8 @@ class DataAccessTest {
         DataAccess da = new MySqlDataAccess();
         da.createUser(user);
         da.clear();
-
-        assertNull(da.getUser(user.username()));
+        var optUserData = da.getUser(user.username());
+        assertEquals(Optional.empty(), optUserData);
     }
 
     @Test
@@ -28,10 +28,33 @@ class DataAccessTest {
         var user = new UserData("dawson", "grousehouse", "daws@gmail.com");
         DataAccess da = new MySqlDataAccess();
         da.createUser(user);
-        assertNotNull(da.getUser(user.username()));
+        var optUserData = da.getUser(user.username());
+        assertTrue(optUserData.isPresent());
+        UserData userData = optUserData.get();
+        assertNotNull(da.getUser(userData.username()));
     }
 
     @Test
-    void getUser() {
+    void getUser() throws Exception {
+        var user = new UserData("dawson", "grousehouse", "daws@gmail.com");
+        DataAccess da = new MySqlDataAccess();
+        da.createUser(user);
+        var optUserData = da.getUser(user.username());
+        UserData userData = optUserData.get();
+        assertEquals(userData.username(), user.username());
     }
+
+    @Test
+    void addAuth() throws Exception {
+        AuthData auth = new AuthData("dawson", "12345678");
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addAuth(auth);
+        var optAuthData = da.getAuth(auth.authToken());
+        assertTrue(optAuthData.isPresent());
+        AuthData authData = optAuthData.get();
+        assertNotNull(da.getUser(authData.authToken()));
+    }
+
+
 }
