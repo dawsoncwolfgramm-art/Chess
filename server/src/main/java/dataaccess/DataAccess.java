@@ -18,7 +18,7 @@ public interface DataAccess {
 
     void deleteAuth(String auth) throws Exception;
 
-    void addGame(GameData gameData) throws Exception;
+    Integer addGame(GameData gameData) throws Exception;
 
     List<GameData> getAllGames() throws Exception;
 

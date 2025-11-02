@@ -6,11 +6,21 @@ import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.JoinGameRequest;
 import datamodel.UserData;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
+
+    @BeforeEach
+    void clearAllData() throws Exception {
+        var da = new MySqlDataAccess();
+        da.clear();
+    }
 
     @Test
     void clear() {
@@ -21,7 +31,7 @@ public class UserServiceTest {
         var user = new UserData("jow", "j", "j@j");
         var at = "xyz";
 
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData res = service.register(user);
         assertNotNull(res);
@@ -35,7 +45,7 @@ public class UserServiceTest {
         var user = new UserData("jow", "j@j", "asdf@gmail.com");
         var at = "xyz";
 
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData res = service.register(user);
         assertNotNull(res);
@@ -49,7 +59,7 @@ public class UserServiceTest {
         var user = new UserData("daws", "D@ws0n", "");
         var at = "xyz";
 
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         assertThrows(Exception.class, () -> {
             service.register(user);
@@ -60,7 +70,7 @@ public class UserServiceTest {
     void loginNoPassword() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
         var user2 = new UserData("daws", "Dawson", "");
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData registerRes = service.register(user);
         assertThrows(Exception.class, () -> {
@@ -71,7 +81,7 @@ public class UserServiceTest {
     @Test
     void loginNoRegister() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         assertThrows(Exception.class, () -> {
             service.login(user);
@@ -82,7 +92,7 @@ public class UserServiceTest {
     void loginSuccess() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
 
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData registerRes = service.register(user);
         AuthData res = service.login(user);
@@ -95,21 +105,22 @@ public class UserServiceTest {
     @Test
     void logoutSuccess() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData registerRes = service.register(user);
         assertEquals(registerRes.username(), user.username());
         assertNotNull(registerRes.authToken());
-        assertNull(da.getUser(registerRes.authToken()));
+        assertNotNull(da.getUser(registerRes.authToken()));
         service.logout(registerRes.authToken());
-        assertNull(da.getAuth(registerRes.authToken()));
+        Optional<AuthData> optAuthData = da.getAuth(registerRes.authToken());
+        assertEquals(Optional.empty(), optAuthData);
     }
 
     @Test
     void logoutBadAuth() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
         var auth = new AuthData("daws", "abcdefghijklmnopqrstuvwxyz");
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         AuthData registerRes = service.register(user);
         assertThrows(Exception.class, () -> {
@@ -121,7 +132,7 @@ public class UserServiceTest {
     void createGameSuccess() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
         var game = new GameData(0, null, null, "Lonely", null);
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var auth = service.register(user);
         assertEquals(1, service.createGame(auth.authToken(), game));
@@ -131,7 +142,7 @@ public class UserServiceTest {
     void createGamenameNull() throws Exception {
         var user = new UserData("daws", "D@ws0n", "daws@byu.edu");
         var game = new GameData(0, null, null, null, null);
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var auth = service.register(user);
         assertThrows(Exception.class, () -> {
@@ -142,7 +153,7 @@ public class UserServiceTest {
 
     @Test
     void joinGameSuccess() throws Exception {
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
         AuthData registerRes = service.register(user);
@@ -155,7 +166,7 @@ public class UserServiceTest {
 
     @Test
     void joinGameFail() throws Exception {
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
         AuthData registerRes = service.register(user);
@@ -169,7 +180,7 @@ public class UserServiceTest {
 
     @Test
     void listGameSuccess() throws Exception {
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
         AuthData registerRes = service.register(user);
@@ -184,7 +195,7 @@ public class UserServiceTest {
 
     @Test
     void listGameFail() throws Exception {
-        var da = new MemoryDataAccess();
+        var da = new MySqlDataAccess();
         var service = new UserService(da);
         var user = new UserData("daws", "D@ws0n", "daws@gmail.com");
         AuthData registerRes = service.register(user);

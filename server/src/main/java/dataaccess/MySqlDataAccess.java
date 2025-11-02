@@ -8,7 +8,9 @@ import datamodel.GameData;
 import datamodel.UserData;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.*;
@@ -118,17 +120,22 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public void addGame(GameData gameData) throws Exception {
+    public Integer addGame(GameData gameData) throws Exception {
         ChessGame game = new ChessGame();
         String gameJson = new Gson().toJson(game);
         String sql = "INSERT INTO gamedata(whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
-             var statement = conn.prepareStatement(sql);) {
+             var statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
             statement.setString(1, gameData.whiteUsername());
             statement.setString(2, gameData.blackUsername());
             statement.setString(3, gameData.gameName());
             statement.setString(4, gameJson);
             statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
         } catch (SQLException e) {
             throw new DataAccessException("dataaccess problem");
         }
