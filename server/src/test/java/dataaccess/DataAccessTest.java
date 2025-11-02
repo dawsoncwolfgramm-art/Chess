@@ -2,6 +2,7 @@ package dataaccess;
 
 import datamodel.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jetty.server.Authentication;
@@ -15,9 +16,11 @@ class DataAccessTest {
     void clear() throws Exception {
         var user = new UserData("jow", "j@j", "j");
         var auth = new AuthData("jow", "120983rfpajsg0981345");
-//        var game = new GameData(1, "white", "black", "colors", null);
+        var game = new GameData(1, "white", "black", "colors", null);
         DataAccess da = new MySqlDataAccess();
         da.createUser(user);
+        da.addAuth(auth);
+        da.addGame(game);
         da.clear();
         var optUserData = da.getUser(user.username());
         assertEquals(Optional.empty(), optUserData);
@@ -80,4 +83,26 @@ class DataAccessTest {
 
     }
 
+    @Test
+    void getGame() throws Exception {
+        GameData game = new GameData(0, null, null, "siblingFight", null);
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addGame(game);
+        da.getGame(1);
+    }
+
+    @Test
+    void getListGames() throws Exception {
+        GameData game1 = new GameData(0, null, null, "siblingFight", null);
+        GameData game2 = new GameData(1, null, null, "parentsFight", null);
+        GameData game3 = new GameData(2, null, null, "inLawFights", null);
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addGame(game1);
+        da.addGame(game2);
+        da.addGame(game3);
+        List<GameData> games = da.getAllGames();
+        assertEquals(3, games.size());
+    }
 }

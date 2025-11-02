@@ -88,7 +88,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void addAuth(AuthData auth) throws Exception {
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement("INSERT INTO authdata(username, authToken) VALUES(?, ?)");) {
+        String sql = "INSERT INTO authdata(username, authToken) VALUES(?, ?)";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, auth.username());
             statement.setString(2, auth.authToken());
             statement.executeUpdate();
@@ -99,7 +101,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void deleteAuth(String auth) throws Exception {
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement("DELETE FROM authdata WHERE authToken = ?");) {
+        String sql = "DELETE FROM authdata WHERE authToken = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, auth);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -126,8 +130,28 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public List<GameData> getAllGames() throws Exception {
+        String sql = "SELECT * FROM gamedata";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);
+             var seq = statement.executeQuery()) {
 
-        return List.of();
+            List<GameData> games = new ArrayList<>();
+
+            while (seq.next()) {
+                int id = seq.getInt("gameID");
+                String white = seq.getString("whiteUsername");
+                String black = seq.getString("blackUsername");
+                String name = seq.getString("gameName");
+                String gameJson = seq.getString("chessGame");
+                ChessGame game = gson.fromJson(gameJson, ChessGame.class);
+
+                games.add(new GameData(id, white, black, name, game));
+            }
+
+            return games; // empty list if no games
+        } catch (SQLException e) {
+            throw new DataAccessException("dataaccess problem");
+        }
     }
 
     @Override
@@ -161,6 +185,21 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void updateGame(int gameId, String whiteUsername, String blackUsername, String gameName) throws Exception {
+        String sql = "UPDATE gamedata SET(whiteUsername = ?, blackUsername = ?) WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql)) {
+            statement.setString(1, whiteUsername);
+            statement.setString(2, blackUsername);
+            statement.setString(3, gameName);
+            statement.setInt(4, gameId);
+
+            int updated = statement.executeUpdate();
+            if (updated == 0) {
+                throw new DataAccessException("no rows updated (game not found)");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("dataaccess problem");
+        }
 
     }
 

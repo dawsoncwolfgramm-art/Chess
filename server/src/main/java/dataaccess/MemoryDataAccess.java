@@ -1,6 +1,5 @@
 package dataaccess;
 
-
 import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.AuthData;
