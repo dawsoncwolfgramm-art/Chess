@@ -112,7 +112,8 @@ public class MySqlDataAccess implements DataAccess {
         ChessGame game = new ChessGame();
         String gameJson = new Gson().toJson(game);
         String sql = "INSERT INTO gamedata(whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?)";
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement(sql);) {
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, gameData.whiteUsername());
             statement.setString(2, gameData.blackUsername());
             statement.setString(3, gameData.gameName());
@@ -125,23 +126,29 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public List<GameData> getAllGames() throws Exception {
+
         return List.of();
     }
 
     @Override
     public Optional<GameData> getGame(int gameId) throws Exception {
         String sql = "SELECT * FROM gamedata WHERE gameID = ?";
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement(sql);) {
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setInt(1, gameId);
-            var seq = statement.executeQuery();
-            if (seq.next()) {
-                return Optional.of(new GameData(seq.getInt("gameID"),
-                        seq.getString("whiteUsername"),
-                        seq.getString("blackUsername"),
-                        seq.getString("gameName"),
-                        seq.getString("chessGame")));
+            try (var seq = statement.executeQuery()) {
+                if (!seq.next()) {
+                    return Optional.empty();
+                }
+
+                int id = seq.getInt("gameID");
+                String white = seq.getString("whiteUsername");
+                String black = seq.getString("blackUsername");
+                String name = seq.getString("gameName");
+                String gameJson = seq.getString("chessGame");
+                ChessGame game = gson.fromJson(gameJson, ChessGame.class);
+                return Optional.of(new GameData(id, white, black, name, game));
             }
-            return Optional.empty();
         } catch (SQLException e) {
             throw new DataAccessException("dataaccess problem");
         }
