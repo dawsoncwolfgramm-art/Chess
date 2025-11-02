@@ -45,7 +45,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void createUser(UserData user) throws Exception {
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement("INSERT INTO userdata(username, password, email) VALUES(?, ?, ?)");) {
+        String sql = "INSERT INTO userdata(username, password, email) VALUES(?, ?, ?)";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, user.username());
             statement.setString(2, user.password());
             statement.setString(3, user.email());
@@ -57,7 +59,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public Optional<UserData> getUser(String username) throws Exception {
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement("SELECT * FROM userdata WHERE username = ?");) {
+        String sql = "SELECT * FROM userdata WHERE username = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, username);
             var seq = statement.executeQuery();
             if (seq.next()) {
@@ -73,7 +77,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public Optional<AuthData> getAuth(String auth) throws Exception {
-        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement("SELECT * FROM authdata WHERE authToken = ?");) {
+        String sql = "SELECT * FROM authdata WHERE authToken = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql);) {
             statement.setString(1, auth);
             var seq = statement.executeQuery();
             if (seq.next()) {
