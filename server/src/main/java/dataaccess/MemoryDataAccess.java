@@ -54,8 +54,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public GameData getGame(int gameId) {
-        return game.get(gameId);
+    public Optional<GameData> getGame(int gameId) {
+        return Optional.ofNullable(game.get(gameId));
     }
 
     @Override

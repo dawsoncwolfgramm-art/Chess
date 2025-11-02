@@ -1,6 +1,7 @@
 package dataaccess;
 
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
@@ -108,7 +109,18 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void addGame(GameData gameData) throws Exception {
-
+        ChessGame game = new ChessGame();
+        String gameJson = new Gson().toJson(game);
+        String sql = "INSERT INTO gamedata(whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?)";
+        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement(sql);) {
+            statement.setString(1, gameData.whiteUsername());
+            statement.setString(2, gameData.blackUsername());
+            statement.setString(3, gameData.gameName());
+            statement.setString(4, gameJson);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("dataaccess problem");
+        }
     }
 
     @Override
@@ -117,8 +129,22 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public GameData getGame(int gameId) throws Exception {
-        return null;
+    public Optional<GameData> getGame(int gameId) throws Exception {
+        String sql = "SELECT * FROM gamedata WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection(); var statement = conn.prepareStatement(sql);) {
+            statement.setInt(1, gameId);
+            var seq = statement.executeQuery();
+            if (seq.next()) {
+                return Optional.of(new GameData(seq.getInt("gameID"),
+                        seq.getString("whiteUsername"),
+                        seq.getString("blackUsername"),
+                        seq.getString("gameName"),
+                        seq.getString("chessGame")));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new DataAccessException("dataaccess problem");
+        }
     }
 
     @Override
