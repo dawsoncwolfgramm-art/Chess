@@ -105,4 +105,18 @@ class DataAccessTest {
         List<GameData> games = da.getAllGames();
         assertEquals(3, games.size());
     }
+
+    @Test
+    void updateGame() throws Exception {
+        GameData game1 = new GameData(0, null, null, "siblingFight", null);
+        String whiteUser = "dawson";
+        String blackUser = "sturat";
+        String gameName = "siblingFight";
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addGame(game1);
+        da.updateGame(1, whiteUser, blackUser, gameName);
+
+    }
+
 }

@@ -124,7 +124,8 @@ public class UserService {
         }
 
         int gameId = joinData.gameID;
-        AuthData player = dataAccess.getPlayerName(authToken);
+        Optional<AuthData> optPlayer = dataAccess.getAuth(authToken);
+        AuthData player = optPlayer.get();
         Optional<GameData> optGameData = dataAccess.getGame(gameId);
         GameData game = optGameData.get();
         if (joinData.playerColor().equalsIgnoreCase("white")) {

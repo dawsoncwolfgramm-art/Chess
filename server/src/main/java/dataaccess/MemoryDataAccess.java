@@ -57,11 +57,6 @@ public class MemoryDataAccess implements DataAccess {
         return Optional.ofNullable(game.get(gameId));
     }
 
-    @Override
-    public AuthData getPlayerName(String authToken) {
-        return auth.get(authToken);
-    }
-
     public void updateGame(int gameId, String whiteUsername, String blackUsername, String gameName) {
         game.put(gameId, new GameData(gameId, whiteUsername, blackUsername, gameName, null));
     }

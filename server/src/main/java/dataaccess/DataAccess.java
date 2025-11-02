@@ -24,8 +24,6 @@ public interface DataAccess {
 
     Optional<GameData> getGame(int gameId) throws Exception;
 
-    AuthData getPlayerName(String auth) throws Exception;
-
     void updateGame(int gameId, String whiteUsername,
                     String blackUsername, String gameName) throws Exception;
 }

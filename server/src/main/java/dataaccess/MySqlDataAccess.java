@@ -185,24 +185,14 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData getPlayerName(String auth) throws Exception {
-        return null;
-    }
-
-    @Override
     public void updateGame(int gameId, String whiteUsername, String blackUsername, String gameName) throws Exception {
-        String sql = "UPDATE gamedata SET(whiteUsername = ?, blackUsername = ?) WHERE gameID = ?";
+        String sql = "UPDATE gamedata SET whiteUsername = ?, blackUsername = ? WHERE gameID = ?";
         try (var conn = DatabaseManager.getConnection();
              var statement = conn.prepareStatement(sql)) {
             statement.setString(1, whiteUsername);
             statement.setString(2, blackUsername);
-            statement.setString(3, gameName);
-            statement.setInt(4, gameId);
-
-            int updated = statement.executeUpdate();
-            if (updated == 0) {
-                throw new DataAccessException("no rows updated (game not found)");
-            }
+            statement.setInt(3, gameId);
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("dataaccess problem");
         }
@@ -234,13 +224,6 @@ public class MySqlDataAccess implements DataAccess {
               `username` varchar(256) NOT NULL,
               `authToken` varchar(256) PRIMARY KEY NOT NULL,
               INDEX(`authToken`)
-            );
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS joinGameRequest (
-              `playerColor` varchar(256) NOT NULL,
-              `gameID` int PRIMARY KEY NOT NULL,
-              INDEX(`gameID`)
             );
             """
     };
