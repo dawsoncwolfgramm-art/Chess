@@ -22,7 +22,7 @@ public interface DataAccess {
 
     List<GameData> getAllGames() throws Exception;
 
-    GameData getGame(int gameId) throws Exception;
+    Optional<GameData> getGame(int gameId) throws Exception;
 
     AuthData getPlayerName(String auth) throws Exception;
 

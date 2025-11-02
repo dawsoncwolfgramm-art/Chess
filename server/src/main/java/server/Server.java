@@ -66,9 +66,9 @@ public class Server {
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
         } catch (BadRequestException ex) {
-            ctx.status(400).json(Map.of("message", "Error: bad request"));
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } catch (AlreadyTakenException ex) {
-            ctx.status(403).json(Map.of("message", "Error: already taken"));
+            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -83,9 +83,9 @@ public class Server {
             var response = serializer.toJson(authData);
             ctx.status(200).result(response);
         } catch (BadRequestException ex) {
-            ctx.status(400).json(Map.of("message", "Error: bad request"));
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } catch (UnauthorizedException ex) {
-            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -97,7 +97,7 @@ public class Server {
             userService.logout(data);
             ctx.status(200).result("{}");
         } catch (UnauthorizedException ex) {
-            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -112,9 +112,9 @@ public class Server {
             int gameId = userService.createGame(data, game);
             ctx.status(200).result("{ \"gameID\": " + gameId + " }");
         } catch (BadRequestException ex) {
-            ctx.status(400).json(Map.of("message", "Error: bad request"));
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } catch (UnauthorizedException ex) {
-            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -128,9 +128,9 @@ public class Server {
             var returnString = String.format("{ \"games\": %s }", serializer.toJson(gameList));
             ctx.status(200).result(returnString);
         } catch (BadRequestException ex) {
-            ctx.status(400).json(Map.of("message", "Error: bad request"));
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } catch (UnauthorizedException ex) {
-            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }
@@ -144,11 +144,11 @@ public class Server {
             userService.joinGame(token, joinGameReq);
             ctx.status(200).result("{}");
         } catch (BadRequestException ex) {
-            ctx.status(400).json(Map.of("message", "Error: bad request"));
+            ctx.status(400).result("{ \"message\": \"Error: bad request\" }");
         } catch (UnauthorizedException ex) {
-            ctx.status(401).json(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result("{ \"message\": \"Error: unauthorized\" }");
         } catch (AlreadyTakenException ex) {
-            ctx.status(403).json(Map.of("message", "Error: already taken"));
+            ctx.status(403).result("{ \"message\": \"Error: already taken\" }");
         } catch (Exception ex) {
             respondError(ctx, ex);
         }

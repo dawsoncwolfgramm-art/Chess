@@ -14,7 +14,7 @@ class DataAccessTest {
     @Test
     void clear() throws Exception {
         var user = new UserData("jow", "j@j", "j");
-//        var auth = new AuthData("jow", "120983rfpajsg0981345");
+        var auth = new AuthData("jow", "120983rfpajsg0981345");
 //        var game = new GameData(1, "white", "black", "colors", null);
         DataAccess da = new MySqlDataAccess();
         da.createUser(user);
@@ -71,5 +71,13 @@ class DataAccessTest {
         assertTrue(optAuthDataTwo.isPresent());
     }
 
+    @Test
+    void addGame() throws Exception {
+        GameData game = new GameData(0, null, null, "siblingFight", null);
+        DataAccess da = new MySqlDataAccess();
+        da.clear();
+        da.addGame(game);
+
+    }
 
 }

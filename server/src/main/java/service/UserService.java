@@ -8,6 +8,7 @@ import org.mindrot.jbcrypt.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserService {
@@ -41,7 +42,7 @@ public class UserService {
     }
 
     public AuthData login(UserData user) throws Exception {
-        if (user == null || user.username() == null || user.username().isBlank() ||
+        if (user.username() == null || user.username().isBlank() ||
                 user.password() == null || user.password().isBlank()) {
             throw new BadRequestException("bad request");
         }
@@ -124,7 +125,8 @@ public class UserService {
 
         int gameId = joinData.gameID;
         AuthData player = dataAccess.getPlayerName(authToken);
-        GameData game = dataAccess.getGame(gameId);
+        Optional<GameData> optGameData = dataAccess.getGame(gameId);
+        GameData game = optGameData.get();
         if (joinData.playerColor().equalsIgnoreCase("white")) {
             if (game.whiteUsername() != null) {
                 throw new AlreadyTakenException("already taken");
