@@ -6,7 +6,6 @@ import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.JoinGameRequest;
 import datamodel.UserData;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
