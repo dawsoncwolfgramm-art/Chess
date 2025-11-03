@@ -88,19 +88,6 @@ public class UserService {
         GameData gameData = new GameData(0, null,
                 null, userGameData.gameName(), null);
         int gameId = dataAccess.addGame(gameData);
-//        GameData gameData;
-//        int num = 1;
-//        while (true) {
-//            if (!gamesIds.contains(num)) {
-//                gamesIds.add(num);
-//                gameData = new GameData(num, null,
-//                        null, userGameData.gameName(), null);
-//                dataAccess.addGame(gameData);
-//                break;
-//            }
-//            num++;
-//        }
-//        return gameData.gameID();
         return gameId;
     }
 

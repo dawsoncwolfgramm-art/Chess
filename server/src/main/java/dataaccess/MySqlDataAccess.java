@@ -27,7 +27,6 @@ public class MySqlDataAccess implements DataAccess {
             "TRUNCATE TABLE gamedata;",
             "TRUNCATE TABLE authdata;",
             "TRUNCATE TABLE userdata;",
-            "TRUNCATE TABLE joingamerequest;",
             "ALTER TABLE gamedata AUTO_INCREMENT = 1;"
     };
 

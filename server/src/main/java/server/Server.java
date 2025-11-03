@@ -52,7 +52,7 @@ public class Server {
             userService.clear();
             ctx.status(200).result("{}");
         } catch (Exception ex) {
-            ctx.status(500).json(Map.of("message", "Error: " + ex.getMessage()));
+            ctx.status(500).result("{ \"message\": \"Error: server down\" }");
         }
 
     }
