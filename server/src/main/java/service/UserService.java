@@ -86,7 +86,7 @@ public class UserService {
         }
         GameData gameDataMemory;
         int gameId;
-        int num = 1;
+        int num = 0;
         while (true) {
             if (!gamesIds.contains(num)) {
                 gamesIds.add(num);
@@ -97,7 +97,7 @@ public class UserService {
             }
             num++;
         }
-        if (num == 1) {
+        if (num != 1) {
             return gameId;
         }
         return gameDataMemory.gameID();
