@@ -85,10 +85,23 @@ public class UserService {
         if (userGameData.gameName() == null) {
             throw new BadRequestException("bad request");
         }
-        GameData gameData = new GameData(0, null,
-                null, userGameData.gameName(), null);
-        int gameId = dataAccess.addGame(gameData);
-        return gameId;
+        GameData gameDataMemory;
+        int gameId;
+        int num = 1;
+        while (true) {
+            if (!gamesIds.contains(num)) {
+                gamesIds.add(num);
+                gameDataMemory = new GameData(num, null,
+                        null, userGameData.gameName(), null);
+                gameId = dataAccess.addGame(gameDataMemory);
+                break;
+            }
+            num++;
+        }
+        if (num == 1) {
+            return gameId;
+        }
+        return gameDataMemory.gameID();
     }
 
     public List<GameData> listGames(String authToken) throws Exception {
