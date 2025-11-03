@@ -23,7 +23,6 @@ public class UserService {
         dataAccess.clear();
     }
 
-
     public AuthData register(UserData user) throws Exception {
         if (user.username() == null || user.username().isBlank() ||
                 user.email() == null || user.email().isBlank() ||

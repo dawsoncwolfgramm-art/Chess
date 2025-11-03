@@ -5,7 +5,6 @@ import datamodel.*;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -116,7 +115,6 @@ class DataAccessTest {
         da.clear();
         da.addGame(game1);
         da.updateGame(1, whiteUser, blackUser, gameName);
-
     }
 
 }
