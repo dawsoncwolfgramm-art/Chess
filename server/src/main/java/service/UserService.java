@@ -1,7 +1,5 @@
 package service;
 
-import chess.ChessGame;
-import dataaccess.DataAccessException;
 import datamodel.*;
 import dataaccess.DataAccess;
 import org.mindrot.jbcrypt.*;
