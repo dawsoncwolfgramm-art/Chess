@@ -85,6 +85,7 @@ public class UserService {
         GameData gameDataMemory;
         int gameId;
         int num = 0;
+        gamesIds.add(0);
         while (true) {
             if (!gamesIds.contains(num)) {
                 gamesIds.add(num);
