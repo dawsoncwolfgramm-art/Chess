@@ -50,7 +50,7 @@ public class Server {
             userService.clear();
             ctx.status(200).result("{}");
         } catch (Exception ex) {
-            ctx.status(500).result(new Gson().toJson(Map.of("message", ex.getMessage())));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: " + ex.getMessage())));
         }
 
     }
