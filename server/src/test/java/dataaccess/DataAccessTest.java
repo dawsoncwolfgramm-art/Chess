@@ -40,7 +40,7 @@ class DataAccessTest {
     @Test
     void createUserFailDuplicateUsername() throws Exception {
         var u1 = new UserData("walker", "asdfghjkl", "a@a.com");
-        var u2 = new UserData("wyatt", "asdfghjkl", "b@b.com"); // same username (PK)
+        var u2 = new UserData("walker", "asdfghjkl", "b@b.com"); // same username (PK)
         DataAccess da = new MySqlDataAccess();
         da.clear();
 
