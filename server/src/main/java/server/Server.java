@@ -15,6 +15,7 @@ import service.UnauthorizedException;
 import service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class Server {
@@ -49,7 +50,7 @@ public class Server {
             userService.clear();
             ctx.status(200).result("{}");
         } catch (Exception ex) {
-            ctx.status(500).result("{ \"message\": \"Error: server down\" }");
+            ctx.status(500).result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
 
     }

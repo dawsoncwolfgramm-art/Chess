@@ -39,7 +39,7 @@ public class MySqlDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("dataaccess problem");
+            throw new DataAccessException(e.getMessage());
         }
 
     }
