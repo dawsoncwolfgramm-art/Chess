@@ -50,7 +50,7 @@ public class ChessClient {
             return switch (cmd) {
                 case "help" -> help();
                 case "register" -> register(params);
-                //                case "login" -> login(params);
+                case "login" -> login(params);
                 //                case "logout" -> logout(params);
                 //                case "create game" -> createGame(params);
                 //                case "list games" -> listGames(params);
@@ -64,14 +64,16 @@ public class ChessClient {
         }
     }
 
-    public void register(String[] params) throws Exception {
+    public String register(String[] params) throws Exception {
+        System.out.println(params[0]);
+        System.out.println(params[1]);
         if (params.length == 3) {
             try {
                 var auth = serverFacade.register(params);
                 authToken = auth.authToken();
                 clientName = params[0];
                 state = State.SIGNEDIN;
-                System.out.println("Registered as " + params[0]);
+                return "Registered as " + params[0];
             } catch (Exception ex) {
                 System.out.println("Failed due to " + ex.getMessage());
             }
@@ -79,6 +81,20 @@ public class ChessClient {
         throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
+    public String login(String[] params) throws Exception {
+        if (params.length == 2) {
+            try {
+                var auth = serverFacade.login(params);
+                authToken = auth.authToken();
+                clientName = params[0];
+                state = State.SIGNEDIN;
+                return "Logged In as " + params[0];
+            } catch (Exception ex) {
+                System.out.println("Failed due to " + ex.getMessage());
+            }
+        }
+        throw new Exception("Expected: <USERNAME> <PASSWORD>");
+    }
 
     public String help() {
         if (state == State.SIGNEDOUT) {

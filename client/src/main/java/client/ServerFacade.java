@@ -37,6 +37,23 @@ public class ServerFacade {
         }
     }
 
+    public AuthData login(String[] params) throws Exception {
+        String username = params[0];
+        String password = params[1];
+        var login = new LoginRequest(username, password);
+        var body = gson.toJson(login);
+        var loginData = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "user"))
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .header("ContentType", "application/json")
+                .build();
+        var response = client.send(loginData, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return gson.fromJson(response.body(), AuthData.class);
+        } else {
+            throw new Exception();
+        }
+    }
 
     public void logout() {
 
