@@ -27,13 +27,13 @@ public class ServerFacade {
         var register = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + "/user"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
-                .header("ContentType", "application/json")
+                .header("Content-Type", "application/json")
                 .build();
         var response = client.send(register, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), AuthData.class);
         } else {
-            throw new Exception();
+            throw new Exception("Register failed: " + response.statusCode() + " " + response.body());
         }
     }
 
@@ -43,9 +43,9 @@ public class ServerFacade {
         var login = new LoginRequest(username, password);
         var body = gson.toJson(login);
         var loginData = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + "user"))
+                .uri(URI.create(serverUrl + "/session"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
-                .header("ContentType", "application/json")
+                .header("Content-Type", "application/json")
                 .build();
         var response = client.send(loginData, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
@@ -55,8 +55,18 @@ public class ServerFacade {
         }
     }
 
-    public void logout() {
-
+    public void logout(String authToken) throws Exception {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/session"))
+                .header("authorization", authToken)
+                .DELETE()
+                .build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return;
+        } else {
+            throw new Exception("Logout failed: " + response.statusCode() + " " + response.body());
+        }
     }
 
 }
