@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -95,12 +96,12 @@ public class ServerFacade {
                 .header("authorization", authToken)
                 .GET()
                 .build();
-        var response = client.send(logoutRequest, HttpResponse.BodyHandlers.ofString());
+        var response = client.send(listGamesRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            return;
+            var gameList = gson.fromJson(response.body(), ListGamesResponse.class);
+            return gameList.getGames();
         } else {
             throw new Exception(response.statusCode() + " " + response.body());
         }
-        return List.of();
     }
 }

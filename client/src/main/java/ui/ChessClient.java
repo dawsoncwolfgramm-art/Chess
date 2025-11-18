@@ -55,9 +55,9 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "logout" -> logout();
                 case "creategame" -> createGame(params);
-                case "list games" -> listGames(params);
-                //                case "play game" -> joinGame(params);
-                //                case "observe game" -> joinGame(params);
+                case "listgames" -> listGames();
+//                case "play game" -> joinGame(params);
+//                case "observe game" -> joinGame(params);
                 case "quit" -> "quit";
                 default -> "";
             };
@@ -125,12 +125,34 @@ public class ChessClient {
         assertSignedIn();
         try {
             List<GameData> games = serverFacade.listGames(authToken);
-            state = State.SIGNEDOUT;
-            return String.format("%s left chess", clientName);
+            if (games.isEmpty()) {
+                return "No games currently available.";
+            }
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Games:\n");
+
+            for (int i = 0; i < games.size(); i++) {
+                GameData g = games.get(i);
+
+                int listNumber = i + 1;
+
+                String white = (g.whiteUsername() == null) ? "-" : g.whiteUsername();
+                String black = (g.blackUsername() == null) ? "-" : g.blackUsername();
+
+                stringBuilder.append(listNumber).append(". ")
+                        .append("GameID: ").append(g.gameID())
+                        .append("  Name: ").append(g.gameName())
+                        .append("  White: ").append(white)
+                        .append("  Black: ").append(black)
+                        .append("\n");
+            }
+
+            return stringBuilder.toString();
         } catch (Exception ex) {
-            return "Logout failed: " + ex.getMessage();
+            return "List Games failed: " + ex.getMessage();
         }
     }
+
 
     public String help() {
         if (state == State.SIGNEDOUT) {
