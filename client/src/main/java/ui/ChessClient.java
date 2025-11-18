@@ -1,10 +1,12 @@
 package ui;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 
 import client.ServerFacade;
+import datamodel.GameData;
 
 import static ui.EscapeSequences.*;
 
@@ -52,8 +54,8 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
-                case "createGame" -> createGame(params);
-                //                case "list games" -> listGames(params);
+                case "creategame" -> createGame(params);
+                case "list games" -> listGames(params);
                 //                case "play game" -> joinGame(params);
                 //                case "observe game" -> joinGame(params);
                 case "quit" -> "quit";
@@ -107,10 +109,26 @@ public class ChessClient {
 
     public String createGame(String[] params) throws Exception {
         assertSignedIn();
+        if (params.length != 1) {
+            throw new Exception("Expected: <GANENAME>");
+        }
         try {
-
+            String gameName = params[0];
+            Integer gameID = serverFacade.createGame(authToken, gameName);
+            return "Created Game Successful: GameID = " + gameID;
         } catch (Exception ex) {
             return "Create Game failed: " + ex.getMessage();
+        }
+    }
+
+    public String listGames() throws Exception {
+        assertSignedIn();
+        try {
+            List<GameData> games = serverFacade.listGames(authToken);
+            state = State.SIGNEDOUT;
+            return String.format("%s left chess", clientName);
+        } catch (Exception ex) {
+            return "Logout failed: " + ex.getMessage();
         }
     }
 
@@ -124,10 +142,10 @@ public class ChessClient {
         }
         return """
                 - logout = sign out of account
-                - createGame <GAMENAME> = creates game with name of game
-                - listGames = show list of games
-                - playGame <GAMENAME> = joins game through gamename
-                - observeGame <GAMENAME> = joins game through gamename
+                - creategame <GAMENAME> = creates game with name of game
+                - listgames = show list of games
+                - playgame <GAMENAME> = joins game through gamename
+                - observegame <GAMENAME> = joins game through gamename
                 - quit = exit the program
                 - help = to print possible commands""";
     }

@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.List;
 
 import com.google.gson.Gson;
 import datamodel.*;
@@ -33,7 +35,7 @@ public class ServerFacade {
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), AuthData.class);
         } else {
-            throw new Exception("Register failed: " + response.statusCode() + " " + response.body());
+            throw new Exception(response.statusCode() + " " + response.body());
         }
     }
 
@@ -42,31 +44,63 @@ public class ServerFacade {
         String password = params[1];
         var login = new LoginRequest(username, password);
         var body = gson.toJson(login);
-        var loginData = HttpRequest.newBuilder()
+        var loginRequest = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + "/session"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/json")
                 .build();
-        var response = client.send(loginData, HttpResponse.BodyHandlers.ofString());
+        var response = client.send(loginRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), AuthData.class);
         } else {
-            throw new Exception();
+            throw new Exception(response.statusCode() + " " + response.body());
         }
     }
 
     public void logout(String authToken) throws Exception {
-        var request = HttpRequest.newBuilder()
+        var logoutRequest = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + "/session"))
                 .header("authorization", authToken)
                 .DELETE()
                 .build();
-        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var response = client.send(logoutRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             return;
         } else {
-            throw new Exception("Logout failed: " + response.statusCode() + " " + response.body());
+            throw new Exception(response.statusCode() + " " + response.body());
         }
     }
 
+    public Integer createGame(String authToken, String gameName) throws Exception {
+        var game = new GameData(1, null, null, gameName, null);
+        var body = gson.toJson(game);
+        var createGameRequest = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .header("authorization", authToken)
+                .build();
+        var response = client.send(createGameRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            HashMap<String, Double> gameDataHash = gson.fromJson(response.body(), HashMap.class);
+            Double gameIdDouble = gameDataHash.get("gameID");
+            return gameIdDouble.intValue();
+        } else {
+            throw new Exception(response.statusCode() + " " + response.body());
+        }
+    }
+
+    public List<GameData> listGames(String authToken) throws Exception {
+        var listGamesRequest = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .header("authorization", authToken)
+                .GET()
+                .build();
+        var response = client.send(logoutRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return;
+        } else {
+            throw new Exception(response.statusCode() + " " + response.body());
+        }
+        return List.of();
+    }
 }
