@@ -52,7 +52,7 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
-                //                case "create game" -> createGame(params);
+                case "createGame" -> createGame(params);
                 //                case "list games" -> listGames(params);
                 //                case "play game" -> joinGame(params);
                 //                case "observe game" -> joinGame(params);
@@ -65,7 +65,6 @@ public class ChessClient {
     }
 
     public String register(String[] params) throws Exception {
-        System.out.println(params[0]);
         if (params.length != 3) {
             throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
         }
@@ -81,18 +80,18 @@ public class ChessClient {
     }
 
     public String login(String[] params) throws Exception {
-        if (params.length == 2) {
-            try {
-                var auth = serverFacade.login(params);
-                authToken = auth.authToken();
-                clientName = params[0];
-                state = State.SIGNEDIN;
-                return "Logged In as " + params[0];
-            } catch (Exception ex) {
-                System.out.println("Login failed: " + ex.getMessage());
-            }
+        if (params.length != 2) {
+            throw new Exception("Expected: <USERNAME> <PASSWORD>");
         }
-        throw new Exception("Expected: <USERNAME> <PASSWORD>");
+        try {
+            var auth = serverFacade.login(params);
+            authToken = auth.authToken();
+            clientName = params[0];
+            state = State.SIGNEDIN;
+            return "Logged In as " + params[0];
+        } catch (Exception ex) {
+            return "Login failed: " + ex.getMessage();
+        }
     }
 
     public String logout() throws Exception {
@@ -106,6 +105,15 @@ public class ChessClient {
         }
     }
 
+    public String createGame(String[] params) throws Exception {
+        assertSignedIn();
+        try {
+
+        } catch (Exception ex) {
+            return "Create Game failed: " + ex.getMessage();
+        }
+    }
+
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
@@ -116,10 +124,10 @@ public class ChessClient {
         }
         return """
                 - logout = sign out of account
-                - create game <GAMENAME> = creates game with name of game
-                - list games = show list of games
-                - play game <GAMENAME> = joins game through gamename
-                - observe game <GAMENAME> = joins game through gamename
+                - createGame <GAMENAME> = creates game with name of game
+                - listGames = show list of games
+                - playGame <GAMENAME> = joins game through gamename
+                - observeGame <GAMENAME> = joins game through gamename
                 - quit = exit the program
                 - help = to print possible commands""";
     }
