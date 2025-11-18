@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 
-import server.ServerFacade;
+import client.ServerFacade;
 
 import static ui.EscapeSequences.*;
 
@@ -12,7 +12,8 @@ import static ui.EscapeSequences.*;
 public class ChessClient {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDOUT;
-    private String clientName = null;
+    private String clientName;
+    private String authToken;
 
     public ChessClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl);
@@ -63,10 +64,12 @@ public class ChessClient {
         }
     }
 
-    public String register(String[] params) throws Exception {
+    public void register(String[] params) throws Exception {
         if (params.length == 3) {
             try {
-                serverFacade.register(params);
+                var auth = serverFacade.register(params);
+                authToken = auth.authToken();
+                clientName = params[0];
                 state = State.SIGNEDIN;
                 System.out.println("Registered as " + params[0]);
             } catch (Exception ex) {
@@ -75,6 +78,7 @@ public class ChessClient {
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
+
 
     public String help() {
         if (state == State.SIGNEDOUT) {

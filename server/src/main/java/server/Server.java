@@ -34,7 +34,7 @@ public class Server {
         userService = new UserService(dataAccess);
         server = Javalin.create(config -> config.staticFiles.add("web"));
         server.delete("db", this::clear);
-        server.post("user", this::register);
+        server.post("/user", this::register);
         server.post("/session", this::login);
         server.delete("/session", this::logout);
         server.post("/game", this::createGame);

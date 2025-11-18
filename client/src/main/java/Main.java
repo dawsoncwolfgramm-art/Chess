@@ -1,6 +1,5 @@
 import chess.*;
 import ui.ChessClient;
-import server.ServerFacade;
 
 public class Main {
     public static void main(String[] args) {
