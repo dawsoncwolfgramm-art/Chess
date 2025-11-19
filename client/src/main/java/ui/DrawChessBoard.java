@@ -4,9 +4,6 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ui.EscapeSequences.*;
 
 import static ui.EscapeSequences.*;
