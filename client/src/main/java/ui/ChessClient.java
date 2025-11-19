@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
+import chess.ChessBoard;
 import client.ServerFacade;
 import datamodel.GameData;
 
@@ -175,8 +176,11 @@ public class ChessClient {
             if (chosenGame == null) {
                 return "No game found with ID " + gameId;
             }
-
             serverFacade.joinGame(authToken, gameColor, gameId);
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            DrawChessBoard drawChessBoard = new DrawChessBoard(gameColor);
+            drawChessBoard.printChessBoard(board);
             return "Joined Game Successful: GameID = " + gameId;
         } catch (Exception ex) {
             return "Joined Game failed: " + ex.getMessage();
@@ -201,6 +205,10 @@ public class ChessClient {
             if (chosenGame == null) {
                 return "No game found with ID " + gameId;
             }
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            DrawChessBoard drawChessBoard = new DrawChessBoard("white");
+            drawChessBoard.printChessBoard(board);
             return "Joined Game Successful: GameID = " + gameId;
         } catch (Exception ex) {
             return "Joined Game failed: " + ex.getMessage();

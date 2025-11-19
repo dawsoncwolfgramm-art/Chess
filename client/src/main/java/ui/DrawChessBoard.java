@@ -140,13 +140,11 @@ public class DrawChessBoard {
     private ChessPiece[][] flipBoard(ChessPiece[][] original) {
         int size = original.length;
         ChessPiece[][] flipped = new ChessPiece[size][size];
-
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 flipped[row][col] = original[size - 1 - row][size - 1 - col];
             }
         }
-
         return flipped;
     }
 }
