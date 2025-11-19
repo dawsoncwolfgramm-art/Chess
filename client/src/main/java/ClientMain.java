@@ -20,6 +20,6 @@ public class ClientMain {
         DrawChessBoard drawBoard = new DrawChessBoard("white");
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        drawBoard.printChessBoard(board, "white");
+        drawBoard.printChessBoard(board);
     }
 }
