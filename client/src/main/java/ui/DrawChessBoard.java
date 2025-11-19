@@ -22,12 +22,7 @@ public class DrawChessBoard {
         var board1 = board.getBoard();
         String[] numbersWhite = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         String[] numbersBlack = {" 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
-        boolean chessSide;
-        if (color.equalsIgnoreCase("white")) {
-            chessSide = true;
-        } else {
-            chessSide = false;
-        }
+        boolean chessSide = color.equalsIgnoreCase("white");
 
         if (!chessSide) {
             board1 = flipBoard(board1);
