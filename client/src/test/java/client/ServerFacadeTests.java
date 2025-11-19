@@ -3,24 +3,16 @@ package client;
 import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
-import datamodel.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import client.ServerFacade;
 
-
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Optional;
+
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import datamodel.*;
 
@@ -29,9 +21,6 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade serverFacade;
     private static String serverUrl;
-    private String Auth;
-    private final Gson gson = new Gson();
-    private final HttpClient client = HttpClient.newHttpClient();
 
 
     @BeforeEach

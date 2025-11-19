@@ -8,12 +8,4 @@ public class JoinGameRequest {
         this.playerColor = color;
         this.gameID = gameID;
     }
-
-    public String playerColor() {
-        return playerColor;
-    }
-
-    public Integer getGameID() {
-        return gameID;
-    }
 }
