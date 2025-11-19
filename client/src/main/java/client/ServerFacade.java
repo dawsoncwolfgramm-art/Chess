@@ -104,4 +104,34 @@ public class ServerFacade {
             throw new Exception(response.statusCode() + " " + response.body());
         }
     }
+
+    public void joinGame(String authToken, String gameColor, String gameIdString) throws Exception {
+        int gameId = Integer.parseInt(gameIdString);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(gameColor, gameId);
+        var body = gson.toJson(joinGameRequest);
+        var joinGameHttpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game"))
+                .PUT(HttpRequest.BodyPublishers.ofString(body))
+                .header("authorization", authToken)
+                .build();
+        var response = client.send(joinGameHttpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return;
+        } else {
+            throw new Exception(response.statusCode() + " " + response.body());
+        }
+    }
+
+    public void clear() throws Exception {
+        var clearRequest = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/db"))
+                .DELETE()
+                .build();
+        var response = client.send(clearRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return;
+        } else {
+            throw new Exception(response.statusCode() + " " + response.body());
+        }
+    }
 }

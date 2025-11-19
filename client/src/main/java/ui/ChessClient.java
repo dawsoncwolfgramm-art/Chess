@@ -56,8 +56,9 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "creategame" -> createGame(params);
                 case "listgames" -> listGames();
-//                case "play game" -> joinGame(params);
-//                case "observe game" -> joinGame(params);
+                case "playgame" -> joinGame(params);
+                case "observegame" -> observeGame(params);
+                case "clear" -> clear();
                 case "quit" -> "quit";
                 default -> "";
             };
@@ -153,6 +154,78 @@ public class ChessClient {
         }
     }
 
+    public String joinGame(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 2) {
+            throw new Exception("Expected: <GAMECOLOR> <GAMEID>");
+        }
+        try {
+            String gameColor = params[0];
+            String gameId = params[1];
+            List<GameData> games = serverFacade.listGames(authToken);
+            GameData chosenGame = null;
+            for (GameData g : games) {
+                if (g.gameID() == Integer.parseInt(gameId)) {
+                    chosenGame = g;
+                    break;
+                }
+            }
+            if (chosenGame == null) {
+                return "No game found with ID " + gameId;
+            }
+
+            serverFacade.joinGame(authToken, gameColor, gameId);
+            return "Joined Game Successful: GameID = " + gameId;
+        } catch (Exception ex) {
+            return "Joined Game failed: " + ex.getMessage();
+        }
+    }
+
+    public String observeGame(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new Exception("Expected: <GAMEID>");
+        }
+        try {
+            String gameId = params[0];
+            List<GameData> games = serverFacade.listGames(authToken);
+            GameData chosenGame = null;
+            for (GameData g : games) {
+                if (g.gameID() == Integer.parseInt(gameId)) {
+                    chosenGame = g;
+                    break;
+                }
+            }
+            if (chosenGame == null) {
+                return "No game found with ID " + gameId;
+            }
+            return "Joined Game Successful: GameID = " + gameId;
+        } catch (Exception ex) {
+            return "Joined Game failed: " + ex.getMessage();
+        }
+    }
+
+    public void makeChessBoard() {
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                System.out.print(SET_TEXT_COLOR_BLUE + x + SET_BG_COLOR_BLACK);
+                System.out.print(SET_TEXT_COLOR_BLUE + y + SET_BG_COLOR_WHITE);
+            }
+        }
+    }
+
+
+    public String clear() throws Exception {
+        assertSignedIn();
+        try {
+            serverFacade.clear();
+            state = State.SIGNEDOUT;
+            return "Clear Successful";
+        } catch (Exception ex) {
+            return "Clear failed: " + ex.getMessage();
+
+        }
+    }
 
     public String help() {
         if (state == State.SIGNEDOUT) {
@@ -166,8 +239,8 @@ public class ChessClient {
                 - logout = sign out of account
                 - creategame <GAMENAME> = creates game with name of game
                 - listgames = show list of games
-                - playgame <GAMENAME> = joins game through gamename
-                - observegame <GAMENAME> = joins game through gamename
+                - playgame <GAMECOLOR> <GAMEID> = joins game through gamename
+                - observegame <GAMEID> = joins game through gamename
                 - quit = exit the program
                 - help = to print possible commands""";
     }
