@@ -68,6 +68,7 @@ public class ChessClient {
     }
 
     public String register(String[] params) throws Exception {
+        assertSignedOut();
         if (params.length != 3) {
             throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
         }
@@ -83,6 +84,7 @@ public class ChessClient {
     }
 
     public String login(String[] params) throws Exception {
+        assertSignedOut();
         if (params.length != 2) {
             throw new Exception("Expected: <USERNAME> <PASSWORD>");
         }
@@ -248,6 +250,12 @@ public class ChessClient {
     private void assertSignedIn() throws Exception {
         if (state == State.SIGNEDOUT) {
             throw new Exception("You must sign in");
+        }
+    }
+
+    private void assertSignedOut() throws Exception {
+        if (state == State.SIGNEDIN) {
+            throw new Exception("You're already Signed In");
         }
     }
 }
