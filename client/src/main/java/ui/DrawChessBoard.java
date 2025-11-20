@@ -20,26 +20,21 @@ public class DrawChessBoard {
 
     public void printChessBoard(ChessBoard board) {
         var board1 = board.getBoard();
-        String[] numbersWhite = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
-        String[] numbersBlack = {" 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
-        boolean chessSide = color.equalsIgnoreCase("white");
-
-        if (!chessSide) {
+        boolean whiteSide = color.equalsIgnoreCase("white");
+        if (!whiteSide) {
             board1 = flipBoard(board1);
         }
-        boolean white = false;
         StringBuilder colorBoard = new StringBuilder();
-        if (chessSide) {
+
+        boolean white = false;
+        if (whiteSide) {
             colorBoard.append("   " + " a " + "  b " + " c " + "  d " + "  e " + " f  " + " g " + "  h " + "\n");
         } else {
             colorBoard.append("   " + " h " + " g " + "  f " + "  e " + " d " + "  c " + " b  " + " a " + "\n");
         }
         for (int row = 7; row >= 0; row--) {
-            if (chessSide) {
-                colorBoard.append(numbersWhite[row]);
-            } else {
-                colorBoard.append(numbersBlack[row]);
-            }
+            int rank = whiteSide ? row + 1 : 8 - row;
+            colorBoard.append(" ").append(rank).append(" ");
             for (int col = 0; col < board1.length; col++) {
                 ChessPiece piece = board1[row][col];
                 white = (!white);
@@ -114,14 +109,9 @@ public class DrawChessBoard {
 
             }
             white = (!white);
-            if (chessSide) {
-                colorBoard.append(numbersBlack[row]);
-            } else {
-                colorBoard.append(numbersBlack[row]);
-            }
-            colorBoard.append("\n");
+            colorBoard.append(" ").append(rank).append("\n");
         }
-        if (chessSide) {
+        if (whiteSide) {
             colorBoard.append("   " + " a " + "  b " + " c " + "  d " + "  e " + " f  " + " g " + "  h " + "\n");
         } else {
             colorBoard.append("   " + " h " + " g " + "  f " + "  e " + " d " + "  c " + " b  " + " a " + "\n");
