@@ -22,7 +22,7 @@ public class DrawChessBoard {
             board1 = flipBoard(board1);
         }
         StringBuilder colorBoard = new StringBuilder();
-
+        colorBoard.append(SET_BG_COLOR_LIGHT_GREY);
         boolean white = false;
         if (whiteSide) {
             colorBoard.append("   " + " a " + "  b " + " c " + "  d " + "  e " + " f  " + " g " + "  h " + "\n");
@@ -35,7 +35,7 @@ public class DrawChessBoard {
             for (int col = 0; col < board1.length; col++) {
                 ChessPiece piece = board1[row][col];
                 boolean lightSquare = (row + col) % 2 == 0;
-                colorBoard.append(lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREEN);
+                colorBoard.append(lightSquare ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_LIGHT_GREY);
                 colorBoard.append(symbolForChess(piece));
             }
             white = (!white);
