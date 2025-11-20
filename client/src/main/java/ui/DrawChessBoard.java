@@ -37,12 +37,8 @@ public class DrawChessBoard {
             colorBoard.append(" ").append(rank).append(" ");
             for (int col = 0; col < board1.length; col++) {
                 ChessPiece piece = board1[row][col];
-                white = (!white);
-                if (white) {
-                    colorBoard.append(SET_BG_COLOR_LIGHT_GREY);
-                } else {
-                    colorBoard.append(SET_BG_COLOR_BLACK);
-                }
+                boolean lightSquare = (row + col) % 2 == 0;
+                colorBoard.append(lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREEN);
                 String piece1 = EMPTY;
                 if (piece != null) {
                     if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
