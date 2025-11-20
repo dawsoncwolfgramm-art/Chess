@@ -215,16 +215,6 @@ public class ChessClient {
         }
     }
 
-    public void makeChessBoard() {
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                System.out.print(SET_TEXT_COLOR_BLUE + x + SET_BG_COLOR_BLACK);
-                System.out.print(SET_TEXT_COLOR_BLUE + y + SET_BG_COLOR_WHITE);
-            }
-        }
-    }
-
-
     public String clear() throws Exception {
         assertSignedIn();
         try {
