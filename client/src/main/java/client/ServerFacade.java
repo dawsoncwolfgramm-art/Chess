@@ -4,12 +4,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.Gson;
 import datamodel.*;
+import ui.ServerMessageObserver;
 
 
 public class ServerFacade {
@@ -17,8 +17,15 @@ public class ServerFacade {
     private final String serverUrl;
     private final Gson gson = new Gson();
 
+    private final ServerMessageObserver observer;
+
+    public ServerFacade(String serverUrl, ServerMessageObserver observer) {
+        this.serverUrl = serverUrl;
+        this.observer = observer;
+    }
+
     public ServerFacade(String url) {
-        serverUrl = url;
+        this(url, null);
     }
 
     public AuthData register(String[] params) throws Exception {

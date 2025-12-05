@@ -10,18 +10,19 @@ import client.ServerFacade;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import datamodel.GameData;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDOUT;
     private String clientName;
     private String authToken;
 
     public ChessClient(String serverUrl) {
-        this.serverFacade = new ServerFacade(serverUrl);
+        this.serverFacade = new ServerFacade(serverUrl, this);
     }
 
     public void run() {
@@ -282,6 +283,11 @@ public class ChessClient {
         }
 
         return raw.substring(start, end);
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+        System.out.println("received the message: " + message.getServerMessageType());
     }
 }
 
