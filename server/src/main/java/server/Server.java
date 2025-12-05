@@ -9,10 +9,12 @@ import datamodel.UserData;
 import datamodel.JoinGameRequest;
 import io.javalin.*;
 import io.javalin.http.Context;
+import server.websocket.WebSocketHandler;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import service.UserService;
+
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,14 @@ public class Server {
         server.get("/game", this::listGames);
         server.put("/game", this::joinGame);
 
+
+        WebSocketHandler wsHandler = new WebSocketHandler();
+
+        server.ws("/ws", ws -> {
+            ws.onConnect(wsHandler::connect);
+            ws.onClose(wsHandler::close);
+            ws.onMessage(wsHandler::message);
+        });
         // Register your endpoints and exception handlers here.
 
     }
