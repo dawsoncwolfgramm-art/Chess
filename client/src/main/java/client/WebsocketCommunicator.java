@@ -54,4 +54,32 @@ public class WebsocketCommunicator extends Endpoint {
         session.getBasicRemote().sendText(json);
     }
 
+    public void join(String authToken, Integer gameID) throws IOException {
+        var command = new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken,
+                gameID
+        );
+        session.getBasicRemote().sendText(new Gson().toJson(command));
+    }
+
+
+    public void sendConnect(String authToken, int gameId) throws IOException {
+        UserGameCommand cmd = new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken,
+                gameId
+        );
+        send(cmd);
+    }
+
+    public void sendLeave(String authToken, int gameId) throws IOException {
+        UserGameCommand cmd = new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken,
+                gameId
+        );
+        send(cmd);
+    }
+
 }

@@ -144,4 +144,25 @@ public class UserService {
             throw new BadRequestException("bad request");
         }
     }
+
+    public String getUsername(String authToken) throws Exception {
+        if (authToken == null || authToken.isBlank()) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
+        Optional<AuthData> optAuth = dataAccess.getAuth(authToken);
+        if (optAuth.isEmpty()) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
+        return optAuth.get().username();
+    }
+
+    public GameData getGame(int gameId) throws Exception {
+        Optional<GameData> optGame = dataAccess.getGame(gameId);
+        if (optGame.isEmpty()) {
+            throw new BadRequestException("bad request");
+        }
+        return optGame.get();
+    }
 }

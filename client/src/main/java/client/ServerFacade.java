@@ -18,6 +18,7 @@ public class ServerFacade {
     private final Gson gson = new Gson();
 
     private final ServerMessageObserver observer;
+    private WebsocketCommunicator websocket;
 
     public ServerFacade(String serverUrl, ServerMessageObserver observer) {
         this.serverUrl = serverUrl;
@@ -26,6 +27,22 @@ public class ServerFacade {
 
     public ServerFacade(String url) {
         this(url, null);
+    }
+
+    public void connectToGame(String authToken, String gameIdString) throws Exception {
+        if (websocket == null) {
+            websocket = new WebsocketCommunicator(serverUrl, observer);
+        }
+        int gameId = Integer.parseInt(gameIdString);
+        websocket.sendConnect(authToken, gameId);
+    }
+
+    public void leaveGame(String authToken, String gameIdString) throws Exception {
+        if (websocket != null) {
+            int gameId = Integer.parseInt(gameIdString);
+            websocket.sendLeave(authToken, gameId);
+            // you might also want: websocket.session.close()
+        }
     }
 
     public AuthData register(String[] params) throws Exception {

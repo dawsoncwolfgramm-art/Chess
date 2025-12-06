@@ -192,6 +192,7 @@ public class ChessClient implements ServerMessageObserver {
             board.resetBoard();
             DrawChessBoard drawChessBoard = new DrawChessBoard(gameColor);
             drawChessBoard.printChessBoard(board);
+            serverFacade.connectToGame(authToken, gameId);
             return "Joined Game Successful";
         } catch (Exception ex) {
             String cleanMessage = extractErrorMessage(ex);
