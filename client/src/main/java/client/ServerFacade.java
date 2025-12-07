@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import datamodel.*;
-import ui.ServerMessageObserver;
+import ui.NotificationHandler;
 
 
 public class ServerFacade {
@@ -17,10 +17,10 @@ public class ServerFacade {
     private final String serverUrl;
     private final Gson gson = new Gson();
 
-    private final ServerMessageObserver observer;
+    private final NotificationHandler observer;
     private WebsocketCommunicator websocket;
 
-    public ServerFacade(String serverUrl, ServerMessageObserver observer) {
+    public ServerFacade(String serverUrl, NotificationHandler observer) {
         this.serverUrl = serverUrl;
         this.observer = observer;
     }

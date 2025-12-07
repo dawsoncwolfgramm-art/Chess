@@ -7,15 +7,13 @@ import java.util.Scanner;
 
 import chess.ChessBoard;
 import client.ServerFacade;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import datamodel.GameData;
 import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
 
-public class ChessClient implements ServerMessageObserver {
+public class ChessClient implements NotificationHandler {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDOUT;
     private String clientName;

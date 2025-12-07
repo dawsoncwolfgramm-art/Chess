@@ -3,7 +3,7 @@ package client;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 
-import ui.ServerMessageObserver;
+import ui.NotificationHandler;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -12,11 +12,11 @@ import java.net.URI;
 
 public class WebsocketCommunicator extends Endpoint {
 
-    private final ServerMessageObserver observer;
+    private final NotificationHandler observer;
     private final Gson gson = new Gson();
     private Session session;
 
-    public WebsocketCommunicator(String url, ServerMessageObserver observer) throws Exception {
+    public WebsocketCommunicator(String url, NotificationHandler observer) throws Exception {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
