@@ -44,7 +44,7 @@ public class Server {
         server.put("/game", this::joinGame);
 
 
-        WebSocketHandler wsHandler = new WebSocketHandler();
+        WebSocketHandler wsHandler = new WebSocketHandler(userService);
 
         server.ws("/ws", ws -> {
             ws.onConnect(wsHandler::connect);
