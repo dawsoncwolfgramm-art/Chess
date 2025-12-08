@@ -202,7 +202,22 @@ public class MySqlDataAccess implements DataAccess {
         } catch (SQLException e) {
             throw new DataAccessException("dataaccess problem");
         }
+    }
 
+
+    public void updateGameState(int gameId, ChessGame game) throws Exception {
+        String sql = "UPDATE gamedata SET chessGame = ? WHERE gameID = ?";
+        String gameJson = gson.toJson(game);
+
+        try (var conn = DatabaseManager.getConnection();
+             var statement = conn.prepareStatement(sql)) {
+
+            statement.setString(1, gameJson);
+            statement.setInt(2, gameId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("dataaccess problem");
+        }
     }
 
     private final String[] createStatements = {

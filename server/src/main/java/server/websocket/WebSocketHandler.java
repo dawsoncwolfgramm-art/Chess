@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import datamodel.GameData;
 import websocket.commands.UserGameCommand;
@@ -44,17 +45,25 @@ public class WebSocketHandler {
         try {
             String json = ctx.message();
 
-            UserGameCommand command = gson.fromJson(json, UserGameCommand.class);
-            System.out.println("WS RECEIVED: " + command.getCommandType());
+            UserGameCommand base = gson.fromJson(json, UserGameCommand.class);
+            System.out.println("WS RECEIVED: " + base.getCommandType());
 
-            switch (command.getCommandType()) {
-                case CONNECT -> handleConnect(ctx, command);
-                // case MAKE_MOVE -> handleMove(ctx, command);
-                // case LEAVE -> handleLeave(ctx, command);
-                // case RESIGN -> handleResign(ctx, command);
+            switch (base.getCommandType()) {
+                case CONNECT -> handleConnect(ctx, base);
+                case MAKE_MOVE -> {
+                    UserGameCommand.Move moveCmd =
+                            gson.fromJson(json, UserGameCommand.Move.class);
+                    handleMove(ctx, moveCmd);
+                }
+//                case LEAVE -> handleLeave(ctx, base);
+//                case RESIGN -> handleResign(ctx, base);
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
+            ServerMessage error =
+                    new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
+            ctx.send(gson.toJson(error));
         }
     }
 
@@ -81,6 +90,29 @@ public class WebSocketHandler {
             ex.printStackTrace();
             // later: send an ERROR message back
         }
+    }
+
+    private void handleMove(WsMessageContext ctx, UserGameCommand.Move command) throws Exception {
+        int gameID = command.getGameID();
+        String auth = command.getAuthToken();
+        ChessMove move = command.getMove();
+
+        String username = userService.getUsername(auth);
+        GameData gameData = userService.getGame(gameID);
+        ChessGame chessGame = gameData.game();
+
+        try {
+            chessGame.makeMove(move);
+        } catch (Exception ex) {
+            ServerMessage error = new websocket.messages.ErrorMessage("Error: illegal move");
+            ctx.send(gson.toJson(error));
+            return;
+        }
+
+        userService.updateGameState(gameID, chessGame);
+
+        ServerMessage load = new LoadGameMessage(chessGame);
+        broadcast(gameID, load);
     }
 
     private void broadcast(int gameID, ServerMessage message) {

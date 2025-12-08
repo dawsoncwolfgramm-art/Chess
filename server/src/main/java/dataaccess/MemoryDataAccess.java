@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import datamodel.GameData;
 import datamodel.UserData;
 import datamodel.AuthData;
@@ -60,6 +61,20 @@ public class MemoryDataAccess implements DataAccess {
 
     public void updateGame(int gameId, String whiteUsername, String blackUsername, String gameName) {
         game.put(gameId, new GameData(gameId, whiteUsername, blackUsername, gameName, null));
+    }
+
+
+    public void updateGameState(int gameId, ChessGame chessGame) throws Exception {
+        GameData old = game.get(gameId);  // however you store them
+        if (old == null) {
+            throw new DataAccessException("game not found");
+        }
+
+        GameData updated = new GameData(
+                old.gameID(), old.whiteUsername(), old.blackUsername(),
+                old.gameName(), chessGame
+        );
+        game.put(gameId, updated);
     }
 
 }

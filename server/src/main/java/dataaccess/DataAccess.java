@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import datamodel.*;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface DataAccess {
 
     void updateGame(int gameId, String whiteUsername,
                     String blackUsername, String gameName) throws Exception;
+
+    void updateGameState(int gameId, ChessGame game) throws Exception;
 }

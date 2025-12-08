@@ -94,7 +94,7 @@ public class WebsocketCommunicator extends Endpoint {
                 authToken,
                 gameID
         );
-        session.getBasicRemote().sendText(new Gson().toJson(command));
+        session.getBasicRemote().sendText(gson.toJson(command)); // reuse gson field
     }
 
     public void sendMakeMove(String authToken, int gameId, ChessMove move) throws IOException {

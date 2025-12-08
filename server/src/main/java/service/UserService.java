@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import datamodel.*;
 import dataaccess.DataAccess;
 import org.mindrot.jbcrypt.*;
@@ -165,4 +166,9 @@ public class UserService {
         }
         return optGame.get();
     }
+
+    public void updateGameState(int gameId, ChessGame game) throws Exception {
+        dataAccess.updateGameState(gameId, game);
+    }
+
 }
