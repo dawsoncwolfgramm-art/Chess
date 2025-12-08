@@ -15,9 +15,11 @@ import static ui.EscapeSequences.*;
 
 public class ChessClient implements NotificationHandler {
     private final ServerFacade serverFacade;
+
     private State state = State.SIGNEDOUT;
     private String clientName;
     private String authToken;
+    private String currentColor;
 
     public ChessClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl, this);
@@ -174,6 +176,7 @@ public class ChessClient implements NotificationHandler {
         try {
             String gameColor = params[0];
             String gameId = params[1];
+            currentColor = gameColor;
             List<GameData> games = serverFacade.listGames(authToken);
             GameData chosenGame = null;
             for (GameData g : games) {
@@ -186,10 +189,6 @@ public class ChessClient implements NotificationHandler {
                 return "No game found";
             }
             serverFacade.joinGame(authToken, gameColor, gameId);
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            DrawChessBoard drawChessBoard = new DrawChessBoard(gameColor);
-            drawChessBoard.printChessBoard(board);
             serverFacade.connectToGame(authToken, gameId);
             return "Joined Game Successful";
         } catch (Exception ex) {
@@ -216,10 +215,8 @@ public class ChessClient implements NotificationHandler {
             if (chosenGame == null) {
                 return "No game found";
             }
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            DrawChessBoard drawChessBoard = new DrawChessBoard("white");
-            drawChessBoard.printChessBoard(board);
+            currentColor = "white";
+            serverFacade.connectToGame(authToken, gameId);
             return "Joined Game Successful";
         } catch (Exception ex) {
             String cleanMessage = extractErrorMessage(ex);
@@ -286,7 +283,27 @@ public class ChessClient implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage message) {
-        System.out.println("received the message: " + message.getServerMessageType());
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME -> {
+                var load = (websocket.messages.LoadGameMessage) message;
+                var game = load.game;
+                var board = game.getBoard();
+                String color = currentColor;
+                DrawChessBoard drawer = new DrawChessBoard(color);
+                drawer.printChessBoard(board);
+            }
+
+            case NOTIFICATION -> {
+                var note = (websocket.messages.NotificationMessage) message;
+                System.out.println("NOTIFICATION: " + note.message);
+            }
+
+            case ERROR -> {
+                System.out.println("ERROR from server");
+            }
+        }
+        printPrompt();
+        System.out.flush();
     }
 }
 

@@ -22,6 +22,7 @@ public class DrawChessBoard {
             board1 = flipBoard(board1);
         }
         StringBuilder colorBoard = new StringBuilder();
+        colorBoard.append("\n");
         colorBoard.append(SET_BG_COLOR_LIGHT_GREY);
         boolean white = false;
         if (whiteSide) {

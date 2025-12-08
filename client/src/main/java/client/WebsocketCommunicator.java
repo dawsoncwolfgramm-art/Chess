@@ -43,7 +43,21 @@ public class WebsocketCommunicator extends Endpoint {
     private void handleIncomingMessage(String incomeMessage) {
         try {
             ServerMessage base = gson.fromJson(incomeMessage, ServerMessage.class);
-            observer.notify(base);
+
+            switch (base.getServerMessageType()) {
+                case LOAD_GAME -> {
+                    var msg = gson.fromJson(incomeMessage, websocket.messages.LoadGameMessage.class);
+                    observer.notify(msg);
+                }
+                case NOTIFICATION -> {
+                    var msg = gson.fromJson(incomeMessage, websocket.messages.NotificationMessage.class);
+                    observer.notify(msg);
+                }
+                case ERROR -> {
+                    // If you later create ErrorMessage
+                    observer.notify(base); // or cast to your ErrorMessage subclass
+                }
+            }
         } catch (Exception ex) {
             System.out.println("Failed to handle WebSocket message: " + ex.getMessage());
         }

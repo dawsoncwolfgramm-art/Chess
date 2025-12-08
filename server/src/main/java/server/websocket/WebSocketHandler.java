@@ -30,6 +30,7 @@ public class WebSocketHandler {
     }
 
     public void connect(WsConnectContext ctx) {
+        ctx.enableAutomaticPings();
         connections.add(ctx);
         System.out.println("WebSocket connected");
     }
@@ -48,6 +49,9 @@ public class WebSocketHandler {
 
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(ctx, command);
+                // case MAKE_MOVE -> handleMove(ctx, command);
+                // case LEAVE -> handleLeave(ctx, command);
+                // case RESIGN -> handleResign(ctx, command);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -75,6 +79,7 @@ public class WebSocketHandler {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            // later: send an ERROR message back
         }
     }
 
