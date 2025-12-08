@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 
 import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
 import client.ServerFacade;
 import datamodel.GameData;
 import websocket.messages.ServerMessage;
@@ -19,7 +21,8 @@ public class ChessClient implements NotificationHandler {
     private State state = State.SIGNEDOUT;
     private String clientName;
     private String authToken;
-    private String currentColor;
+    private String currentColor = "white";
+    private Integer currentGameId = null;
 
     public ChessClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl, this);
@@ -63,6 +66,7 @@ public class ChessClient implements NotificationHandler {
                 case "joingame" -> joinGame(params);
                 case "observegame" -> observeGame(params);
                 case "clear" -> clear();
+                case "move" -> makeMove(params);
                 case "quit" -> "quit";
                 default -> "";
             };
@@ -171,12 +175,13 @@ public class ChessClient implements NotificationHandler {
             throw new Exception("Expected: <GAMECOLOR> <GAMEID>");
         }
         if (!(params[0].equalsIgnoreCase("black")) && !(params[0].equalsIgnoreCase("white"))) {
-            throw new Exception("Expected: <GAMECOLOR> <GAMEID>");
+            throw new Exception("Expected: <GAMECOLOR (white or black)> <GAMEID>");
         }
         try {
             String gameColor = params[0];
             String gameId = params[1];
-            currentColor = gameColor;
+            currentColor = gameColor.toLowerCase();
+            currentGameId = Integer.parseInt(gameId);
             List<GameData> games = serverFacade.listGames(authToken);
             GameData chosenGame = null;
             for (GameData g : games) {
@@ -190,6 +195,7 @@ public class ChessClient implements NotificationHandler {
             }
             serverFacade.joinGame(authToken, gameColor, gameId);
             serverFacade.connectToGame(authToken, gameId);
+            state = State.GAMEPLAY;
             return "Joined Game Successful";
         } catch (Exception ex) {
             String cleanMessage = extractErrorMessage(ex);
@@ -217,6 +223,7 @@ public class ChessClient implements NotificationHandler {
             }
             currentColor = "white";
             serverFacade.connectToGame(authToken, gameId);
+            state = State.GAMEPLAY;
             return "Joined Game Successful";
         } catch (Exception ex) {
             String cleanMessage = extractErrorMessage(ex);
@@ -237,6 +244,32 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
+    public String makeMove(String[] params) throws Exception {
+        assertGamePlay();
+        if (currentGameId == null) {
+            throw new Exception("You must join a game first");
+        }
+        if (params.length != 4) {
+            throw new Exception("Expected: move <startRow> <startCol> <endRow> <endCol>");
+        }
+
+        try {
+            int sr = Integer.parseInt(params[0]);
+            int sc = Integer.parseInt(params[1]);
+            int er = Integer.parseInt(params[2]);
+            int ec = Integer.parseInt(params[3]);
+
+            ChessPosition start = new ChessPosition(sr, sc);
+            ChessPosition end = new ChessPosition(er, ec);
+            ChessMove move = new ChessMove(start, end, null); // no promotion yet
+
+            serverFacade.sendMove(authToken, currentGameId, move);
+            return "Move sent.";
+        } catch (Exception ex) {
+            return "Move failed: " + extractErrorMessage(ex);
+        }
+    }
+
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
@@ -244,6 +277,10 @@ public class ChessClient implements NotificationHandler {
                     - login <USERNAME> <PASSWORD> = login to account
                     - quit = exit the program
                     - help = to print possible commands""";
+        } else if (state == State.GAMEPLAY) {
+            return """
+                    - move <startRow> <startCol> <endRow> <endCol>
+                    """;
         }
         return """
                 - logout = sign out of account
@@ -264,6 +301,12 @@ public class ChessClient implements NotificationHandler {
     private void assertSignedOut() throws Exception {
         if (state == State.SIGNEDIN) {
             throw new Exception("You're already Signed In");
+        }
+    }
+
+    private void assertGamePlay() throws Exception {
+        if (state != State.GAMEPLAY) {
+            throw new Exception("Need to join a game");
         }
     }
 
