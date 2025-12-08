@@ -12,7 +12,6 @@ import com.google.gson.Gson;
 import datamodel.*;
 import ui.NotificationHandler;
 
-
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
