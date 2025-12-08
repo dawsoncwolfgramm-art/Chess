@@ -249,18 +249,13 @@ public class ChessClient implements NotificationHandler {
         if (currentGameId == null) {
             throw new Exception("You must join a game first");
         }
-        if (params.length != 4) {
-            throw new Exception("Expected: move <startRow> <startCol> <endRow> <endCol>");
+        if (params.length != 2) {
+            throw new Exception("Expected: move <startSquare> <endSquare>  (example, move a2 a3)");
         }
 
         try {
-            int sr = Integer.parseInt(params[0]);
-            int sc = Integer.parseInt(params[1]);
-            int er = Integer.parseInt(params[2]);
-            int ec = Integer.parseInt(params[3]);
-
-            ChessPosition start = new ChessPosition(sr, sc);
-            ChessPosition end = new ChessPosition(er, ec);
+            ChessPosition start = parseSquare(params[0]);
+            ChessPosition end = parseSquare(params[1]);
             ChessMove move = new ChessMove(start, end, null); // no promotion yet
 
             serverFacade.sendMove(authToken, currentGameId, move);
@@ -268,6 +263,27 @@ public class ChessClient implements NotificationHandler {
         } catch (Exception ex) {
             return "Move failed: " + extractErrorMessage(ex);
         }
+    }
+
+    private ChessPosition parseSquare(String square) throws Exception {
+        if (square == null || square.length() != 2) {
+            throw new Exception("Expected positions like a2, h7, etc.");
+        }
+
+        char colLetter = Character.toLowerCase(square.charAt(0));
+        char rowNum = square.charAt(1);
+
+        if (colLetter < 'a' || colLetter > 'h') {
+            throw new Exception("Column (colLetter) must be a–h");
+        }
+        if (rowNum < '1' || rowNum > '8') {
+            throw new Exception("Row (rowNum) must be 1–8");
+        }
+
+        int col = colLetter - 'a' + 1;
+        int row = rowNum - '0';
+
+        return new ChessPosition(row, col);
     }
 
     public String help() {
