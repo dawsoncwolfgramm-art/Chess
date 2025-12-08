@@ -7,6 +7,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import datamodel.*;
 import ui.NotificationHandler;
@@ -43,6 +44,13 @@ public class ServerFacade {
             websocket.sendLeave(authToken, gameId);
             // you might also want: websocket.session.close()
         }
+    }
+
+    public void sendMove(String authToken, int gameId, ChessMove move) throws Exception {
+        if (websocket == null) {
+            websocket = new WebsocketCommunicator(serverUrl, observer);
+        }
+        websocket.sendMakeMove(authToken, gameId, move);
     }
 
     public AuthData register(String[] params) throws Exception {
