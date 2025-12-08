@@ -84,7 +84,7 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(load));
 
             broadcast(gameID,
-                    new NotificationMessage(username + " connected"));
+                    new NotificationMessage(username + " joined the game"));   // THOUGHT THAT THIS WOULD FIX IT.
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -113,6 +113,37 @@ public class WebSocketHandler {
 
         ServerMessage load = new LoadGameMessage(chessGame);
         broadcast(gameID, load);
+
+        String start = toChessNotation(
+                move.getStartPosition().getRow(),
+                move.getStartPosition().getColumn()
+        );
+
+        String end = toChessNotation(
+                move.getEndPosition().getRow(),
+                move.getEndPosition().getColumn()
+        );
+
+        String desc = username + " moved from " + start + " to " + end;
+        broadcast(gameID, new NotificationMessage(desc));
+
+        if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+            broadcast(gameID, new NotificationMessage("White is in check"));
+        }
+        if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+            broadcast(gameID, new NotificationMessage("Black is in check"));
+        }
+        if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            broadcast(gameID, new NotificationMessage("White is in Checkmate"));
+        }
+        if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            broadcast(gameID, new NotificationMessage("Black is in Checkmate"));
+        }
+    }
+
+    private String toChessNotation(int row, int col) {
+        char file = (char) ('a' + col - 1); // 1 → a, 2 → b, etc.
+        return "" + file + row;
     }
 
     private void broadcast(int gameID, ServerMessage message) {
