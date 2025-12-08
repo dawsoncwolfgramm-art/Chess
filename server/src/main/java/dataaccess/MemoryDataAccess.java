@@ -12,6 +12,7 @@ public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
     private HashMap<String, AuthData> auth = new HashMap<>();
     private HashMap<Integer, GameData> game = new HashMap<>();
+    private int nextId = 1;
 
     public void clear() {
         users.clear();
@@ -45,8 +46,16 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public Integer addGame(GameData gameData) {
-        game.put(gameData.gameID(), gameData);
-        return gameData.gameID();
+        int id = nextId++;
+        GameData stored = new GameData(
+                id,
+                gameData.whiteUsername(),
+                gameData.blackUsername(),
+                gameData.gameName(),
+                gameData.game()
+        );
+        game.put(id, stored);
+        return id;
     }
 
     @Override

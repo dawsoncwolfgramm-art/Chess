@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class UserService {
     private final DataAccess dataAccess;
-    private final List<Integer> gamesIds = new ArrayList<>();
+    
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -80,27 +80,20 @@ public class UserService {
         if (dataAccess.getAuth(authToken).isEmpty()) {
             throw new UnauthorizedException("unauthorized");
         }
-        if (userGameData.gameName() == null) {
+        if (userGameData.gameName() == null || userGameData.gameName().isBlank()) {
             throw new BadRequestException("bad request");
         }
-        GameData gameDataMemory;
-        int gameId;
-        int num = 0;
-        gamesIds.add(0);
-        while (true) {
-            if (!gamesIds.contains(num)) {
-                gamesIds.add(num);
-                gameDataMemory = new GameData(num, null,
-                        null, userGameData.gameName(), null);
-                gameId = dataAccess.addGame(gameDataMemory);
-                break;
-            }
-            num++;
-        }
-        if (num != 1) {
-            return gameId;
-        }
-        return gameDataMemory.gameID();
+
+        ChessGame newGame = new ChessGame();
+
+        GameData toStore = new GameData(
+                0,
+                null,
+                null,
+                userGameData.gameName(),
+                newGame
+        );
+        return dataAccess.addGame(toStore);
     }
 
     public List<GameData> listGames(String authToken) throws Exception {
