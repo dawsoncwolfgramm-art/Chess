@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 
@@ -68,15 +69,6 @@ public class WebsocketCommunicator extends Endpoint {
         session.getBasicRemote().sendText(json);
     }
 
-    public void join(String authToken, Integer gameID) throws IOException {
-        var command = new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT,
-                authToken,
-                gameID
-        );
-        session.getBasicRemote().sendText(new Gson().toJson(command));
-    }
-
 
     public void sendConnect(String authToken, int gameId) throws IOException {
         UserGameCommand cmd = new UserGameCommand(
@@ -96,4 +88,22 @@ public class WebsocketCommunicator extends Endpoint {
         send(cmd);
     }
 
+    public void join(String authToken, Integer gameID) throws IOException {
+        var command = new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken,
+                gameID
+        );
+        session.getBasicRemote().sendText(new Gson().toJson(command));
+    }
+
+    public void sendMakeMove(String authToken, int gameId, ChessMove move) throws IOException {
+        UserGameCommand.Move cmd = new UserGameCommand.Move(
+                UserGameCommand.CommandType.MAKE_MOVE,
+                authToken,
+                gameId,
+                move
+        );
+        send(cmd);
+    }
 }
