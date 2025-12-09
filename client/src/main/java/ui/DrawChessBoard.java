@@ -3,7 +3,10 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessPosition;
 import ui.EscapeSequences.*;
+
+import java.util.Set;
 
 import static ui.EscapeSequences.*;
 
@@ -16,6 +19,10 @@ public class DrawChessBoard {
     }
 
     public void printChessBoard(ChessBoard board) {
+        printChessBoard(board, null);
+    }
+
+    public void printChessBoard(ChessBoard board, Set<ChessPosition> highlightSquares) {
         var board1 = board.getBoard();
         boolean whiteSide = color.equalsIgnoreCase("white");
         if (!whiteSide) {
@@ -36,7 +43,15 @@ public class DrawChessBoard {
             for (int col = 0; col < board1.length; col++) {
                 ChessPiece piece = board1[row][col];
                 boolean lightSquare = (row + col) % 2 == 0;
-                colorBoard.append(lightSquare ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_LIGHT_GREY);
+                ChessPosition pos = new ChessPosition(row + 1, col + 1);
+                boolean isHighlighted = highlightSquares != null &&
+                        highlightSquares.contains(pos);
+
+                if (isHighlighted) {
+                    colorBoard.append(SET_BG_COLOR_MAGENTA);
+                } else {
+                    colorBoard.append(lightSquare ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_LIGHT_GREY);
+                }
                 colorBoard.append(symbolForChess(piece));
             }
             white = (!white);
