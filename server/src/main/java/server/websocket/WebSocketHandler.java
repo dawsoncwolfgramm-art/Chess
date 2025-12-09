@@ -51,11 +51,10 @@ public class WebSocketHandler {
             switch (base.getCommandType()) {
                 case CONNECT -> handleConnect(ctx, base);
                 case MAKE_MOVE -> {
-                    UserGameCommand.Move moveCmd =
-                            gson.fromJson(json, UserGameCommand.Move.class);
+                    UserGameCommand.Move moveCmd = gson.fromJson(json, UserGameCommand.Move.class);
                     handleMove(ctx, moveCmd);
                 }
-//                case LEAVE -> handleLeave(ctx, base);
+                case LEAVE -> handleLeave(ctx, base);
 //                case RESIGN -> handleResign(ctx, base);
             }
 
@@ -92,6 +91,24 @@ public class WebSocketHandler {
         }
     }
 
+    private void handleLeave(WsMessageContext ctx, UserGameCommand command) {
+        try {
+            int gameID = command.getGameID();
+            String auth = command.getAuthToken();
+            String username = userService.getUsername(auth);
+
+            var sessions = gameSessions.get(gameID);
+            if (sessions != null) {
+                sessions.remove(ctx);
+            }
+            userService.leaveGame(auth, gameID);
+
+            broadcast(gameID, new NotificationMessage(username + " left the game"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     private void handleMove(WsMessageContext ctx, UserGameCommand.Move command) throws Exception {
         int gameID = command.getGameID();
         String auth = command.getAuthToken();
@@ -115,7 +132,7 @@ public class WebSocketHandler {
             chessGame.makeMove(move);
             userService.updateGameState(gameID, chessGame);
         } catch (chess.InvalidMoveException ex) {
-            String msg = "Move " + start + " " + end + " not allowed: " + ex.getMessage();
+            String msg = "Move " + start + " to " + end + " not allowed: " + ex.getMessage();
             ServerMessage error = new websocket.messages.ErrorMessage(msg);
             ctx.send(gson.toJson(error));
             return;

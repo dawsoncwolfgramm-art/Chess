@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class UserService {
     private final DataAccess dataAccess;
-    
+
 
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -137,6 +137,37 @@ public class UserService {
         } else {
             throw new BadRequestException("bad request");
         }
+    }
+
+    public void leaveGame(String authToken, int gameId) throws Exception {
+        if (authToken == null || authToken.isBlank()) {
+            throw new BadRequestException("bad request");
+        }
+        if (dataAccess.getAuth(authToken).isEmpty()) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        var authOpt = dataAccess.getAuth(authToken);
+        if (authOpt.isEmpty()) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        String username = authOpt.get().username();
+
+        var gameOpt = dataAccess.getGame(gameId);
+        if (gameOpt.isEmpty()) {
+            throw new BadRequestException("bad request");
+        }
+
+        GameData game = gameOpt.get();
+
+        String newWhite = game.whiteUsername();
+        String newBlack = game.blackUsername();
+        if (username.equals(game.whiteUsername())) {
+            newWhite = null;
+        }
+        if (username.equals(game.blackUsername())) {
+            newBlack = null;
+        }
+        dataAccess.updateGame(gameId, newWhite, newBlack, game.gameName());
     }
 
     public String getUsername(String authToken) throws Exception {

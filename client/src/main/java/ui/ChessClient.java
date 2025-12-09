@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Scanner;
 
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
@@ -216,11 +215,12 @@ public class ChessClient implements NotificationHandler {
             throw new Exception("Expected: <GAMEID>");
         }
         try {
-            String gameId = params[0];
+            String gameId = params[1];
+            currentGameId = Integer.parseInt(gameId);
             List<GameData> games = serverFacade.listGames(authToken);
             GameData chosenGame = null;
             for (GameData g : games) {
-                if (g.gameID() == Integer.parseInt(gameId)) {
+                if (g.gameID() == currentGameId) {
                     chosenGame = g;
                     break;
                 }
@@ -279,7 +279,6 @@ public class ChessClient implements NotificationHandler {
 
         char colLetter = Character.toLowerCase(square.charAt(0));
         char rowNum = square.charAt(1);
-
         if (colLetter < 'a' || colLetter > 'h') {
             throw new Exception("Column (colLetter) must be a–h");
         }
@@ -304,21 +303,23 @@ public class ChessClient implements NotificationHandler {
     }
 
     private String leaveGame() throws Exception {
-        assertGamePlay();
+        if (state != State.GAMEPLAY && state != State.OBSERVE) {
+            return "Need to join a game";
+        }
         if (currentGameId == null) {
-            return "You are not in a game.";
+            return "No game to leave.";
         }
 
-        // notify server via WebSocket
-        serverFacade.leaveGame(authToken, String.valueOf(currentGameId));
-
-        // local cleanup
-        currentGameId = null;
-        currentGame = null;
-        currentColor = "white";
-        state = State.SIGNEDIN;
-
-        return "You left the game and returned to the lobby.";
+        try {
+            serverFacade.leaveGame(authToken, currentGameId.toString());
+            currentGameId = null;
+            currentGame = null;
+            currentColor = "white";
+            state = State.SIGNEDIN;
+            return "You left the game.";
+        } catch (Exception ex) {
+            return "Leave failed: " + extractErrorMessage(ex);
+        }
     }
 
     public String help() {
