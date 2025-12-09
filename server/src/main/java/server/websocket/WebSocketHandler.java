@@ -101,19 +101,6 @@ public class WebSocketHandler {
         GameData gameData = userService.getGame(gameID);
         ChessGame chessGame = gameData.game();
 
-        try {
-            chessGame.makeMove(move);
-        } catch (Exception ex) {
-            ServerMessage error = new websocket.messages.ErrorMessage("Error: illegal move");
-            ctx.send(gson.toJson(error));
-            return;
-        }
-
-        userService.updateGameState(gameID, chessGame);
-
-        ServerMessage load = new LoadGameMessage(chessGame);
-        broadcast(gameID, load);
-
         String start = toChessNotation(
                 move.getStartPosition().getRow(),
                 move.getStartPosition().getColumn()
@@ -123,6 +110,23 @@ public class WebSocketHandler {
                 move.getEndPosition().getRow(),
                 move.getEndPosition().getColumn()
         );
+
+        try {
+            chessGame.makeMove(move);
+            userService.updateGameState(gameID, chessGame);
+        } catch (chess.InvalidMoveException ex) {
+            String msg = "Move " + start + " " + end + " not allowed: " + ex.getMessage();
+            ServerMessage error = new websocket.messages.ErrorMessage(msg);
+            ctx.send(gson.toJson(error));
+            return;
+        } catch (Exception ex) {
+            ServerMessage error = new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
+            ctx.send(gson.toJson(error));
+            return;
+        }
+
+        ServerMessage load = new LoadGameMessage(chessGame);
+        broadcast(gameID, load);
 
         String desc = username + " moved from " + start + " to " + end;
         broadcast(gameID, new NotificationMessage(desc));
@@ -134,15 +138,15 @@ public class WebSocketHandler {
             broadcast(gameID, new NotificationMessage("Black is in check"));
         }
         if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            broadcast(gameID, new NotificationMessage("White is in Checkmate"));
+            broadcast(gameID, new NotificationMessage("White is in checkmate"));
         }
         if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            broadcast(gameID, new NotificationMessage("Black is in Checkmate"));
+            broadcast(gameID, new NotificationMessage("Black is in checkmate"));
         }
     }
 
     private String toChessNotation(int row, int col) {
-        char file = (char) ('a' + col - 1); // 1 → a, 2 → b, etc.
+        char file = (char) ('a' + col - 1);
         return "" + file + row;
     }
 

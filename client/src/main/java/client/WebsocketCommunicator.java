@@ -55,8 +55,8 @@ public class WebsocketCommunicator extends Endpoint {
                     observer.notify(msg);
                 }
                 case ERROR -> {
-                    // If you later create ErrorMessage
-                    observer.notify(base); // or cast to your ErrorMessage subclass
+                    var msg = gson.fromJson(incomeMessage, websocket.messages.ErrorMessage.class);
+                    observer.notify(msg);
                 }
             }
         } catch (Exception ex) {
