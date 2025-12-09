@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import client.ServerFacade;
@@ -23,6 +24,8 @@ public class ChessClient implements NotificationHandler {
     private String authToken;
     private String currentColor = "white";
     private Integer currentGameId = null;
+    private ChessGame currentGame;   // latest game state from server
+
 
     public ChessClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl, this);
@@ -67,6 +70,10 @@ public class ChessClient implements NotificationHandler {
                 case "observegame" -> observeGame(params);
                 case "clear" -> clear();
                 case "move" -> makeMove(params);
+                case "redraw" -> redrawBoard();
+//                case "leave" -> leaveGameCommand();
+//                case "resign" -> resignGameCommand();
+//                case "highlight" -> highlightMoves(params);
                 case "quit" -> "quit";
                 default -> "";
             };
@@ -223,8 +230,8 @@ public class ChessClient implements NotificationHandler {
             }
             currentColor = "white";
             serverFacade.connectToGame(authToken, gameId);
-            state = State.GAMEPLAY;
-            return "Joined Game Successful";
+            state = State.OBSERVE;
+            return "Observing Game Successful";
         } catch (Exception ex) {
             String cleanMessage = extractErrorMessage(ex);
             return "Joined Game failed: " + cleanMessage;
@@ -286,26 +293,47 @@ public class ChessClient implements NotificationHandler {
         return new ChessPosition(row, col);
     }
 
+    private String redrawBoard() throws Exception {
+        assertGamePlay();
+        if (currentGameId == null) {
+            return "No game board to redraw.";
+        }
+        DrawChessBoard drawer = new DrawChessBoard(currentColor);
+        drawer.printChessBoard(currentGame.getBoard());
+        return "";
+    }
+
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
                     - register <USERNAME> <PASSWORD> <EMAIL> = create an account
-                    - login <USERNAME> <PASSWORD> = login to account
-                    - quit = exit the program
-                    - help = to print possible commands""";
+                    - login <USERNAME> <PASSWORD>            = login to account
+                    - quit                                   = exit the program
+                    - help                                   = to print possible commands""";
         } else if (state == State.GAMEPLAY) {
             return """
-                    - move <startRow> <startCol> <endRow> <endCol>
-                    """;
+                    Gameplay commands:
+                    - move <from> <to>         example = move e2 e4
+                    - highlight <square>       example = highlight e2
+                    - redraw                   re-draw the current board
+                    - leave                    leave the game (back to lobby)
+                    - resign                   resign the game (but stay in board view)
+                    - help                     show this list""";
+        } else if (state == State.OBSERVE) {
+            return """
+                    Observe commands:
+                    - redraw                   re-draw the current board
+                    - leave                    leave the game (back to lobby)
+                    - help                     show this list""";
         }
         return """
-                - logout = sign out of account
-                - creategame <GAMENAME> = creates game with name of game
-                - listgames = show list of games
-                - joingame <GAMECOLOR> <GAMEID> = joins game through gamename
-                - observegame <GAMEID> = joins game through gamename
-                - quit = exit the program
-                - help = to print possible commands""";
+                - logout                             = sign out of account
+                - creategame <GAMENAME>              = creates game with name of game
+                - listgames                          = show list of games
+                - joingame <GAMECOLOR> <GAMEID>      = joins game through gamename
+                - observegame <GAMEID>               = joins game through gamename
+                - quit                               = exit the program
+                - help                               = to print possible commands""";
     }
 
     private void assertSignedIn() throws Exception {
@@ -326,6 +354,13 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
+    private void assertObserve() throws Exception {
+        if (state == State.OBSERVE) {
+            throw new Exception("You can only Observe");
+        }
+    }
+
+
     private String extractErrorMessage(Exception ex) {
         String raw = ex.getMessage();
         int start = raw.indexOf("Error:");
@@ -345,8 +380,8 @@ public class ChessClient implements NotificationHandler {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 var load = (websocket.messages.LoadGameMessage) message;
-                var game = load.game;
-                var board = game.getBoard();
+                this.currentGame = load.game;
+                var board = currentGame.getBoard();
                 String color = currentColor;
                 DrawChessBoard drawer = new DrawChessBoard(color);
                 drawer.printChessBoard(board);
@@ -358,7 +393,8 @@ public class ChessClient implements NotificationHandler {
             }
 
             case ERROR -> {
-                System.out.println("ERROR from server");
+                var err = (websocket.messages.ErrorMessage) message;
+                System.out.println(err.message);
             }
         }
         printPrompt();
