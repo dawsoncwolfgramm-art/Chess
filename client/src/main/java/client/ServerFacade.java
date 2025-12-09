@@ -53,6 +53,13 @@ public class ServerFacade {
         websocket.sendMakeMove(authToken, gameId, move);
     }
 
+    public void sendResign(String authToken, int gameId) throws Exception {
+        if (websocket == null) {
+            websocket = new WebsocketCommunicator(serverUrl, observer);
+        }
+        websocket.sendResign(authToken, gameId);
+    }
+
     public AuthData register(String[] params) throws Exception {
         String username = params[0];
         String password = params[1];

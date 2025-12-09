@@ -88,13 +88,13 @@ public class WebsocketCommunicator extends Endpoint {
         send(cmd);
     }
 
-    public void join(String authToken, Integer gameID) throws IOException {
-        var command = new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT,
+    public void sendResign(String authToken, int gameId) throws IOException {
+        UserGameCommand cmd = new UserGameCommand(
+                UserGameCommand.CommandType.RESIGN,
                 authToken,
-                gameID
+                gameId
         );
-        session.getBasicRemote().sendText(gson.toJson(command)); // reuse gson field
+        send(cmd);
     }
 
     public void sendMakeMove(String authToken, int gameId, ChessMove move) throws IOException {

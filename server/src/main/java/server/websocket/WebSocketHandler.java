@@ -55,7 +55,7 @@ public class WebSocketHandler {
                     handleMove(ctx, moveCmd);
                 }
                 case LEAVE -> handleLeave(ctx, base);
-//                case RESIGN -> handleResign(ctx, base);
+                case RESIGN -> handleResign(ctx, base);
             }
 
         } catch (Exception ex) {
@@ -104,6 +104,24 @@ public class WebSocketHandler {
             userService.leaveGame(auth, gameID);
 
             broadcast(gameID, new NotificationMessage(username + " left the game"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleResign(WsMessageContext ctx, UserGameCommand command) {
+        try {
+            int gameID = command.getGameID();
+            String auth = command.getAuthToken();
+            String username = userService.getUsername(auth);
+
+            var sessions = gameSessions.get(gameID);
+            if (sessions != null) {
+                sessions.remove(ctx);
+            }
+            userService.leaveGame(auth, gameID);
+
+            broadcast(gameID, new NotificationMessage(username + " has resigned"));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
