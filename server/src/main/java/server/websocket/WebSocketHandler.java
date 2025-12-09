@@ -20,11 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketHandler {
 
-    private static final Set<WsConnectContext> connections = new HashSet<>();
+    private static final Set<WsConnectContext> CONNECTIONS = new HashSet<>();
     private final Map<Integer, Set<WsMessageContext>> gameSessions =
             new ConcurrentHashMap<>();
     private final UserService userService;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
+
 
     public WebSocketHandler(UserService userService) {
         this.userService = userService;
@@ -32,12 +33,12 @@ public class WebSocketHandler {
 
     public void connect(WsConnectContext ctx) {
         ctx.enableAutomaticPings();
-        connections.add(ctx);
+        CONNECTIONS.add(ctx);
         System.out.println("WebSocket connected");
     }
 
     public void close(WsCloseContext ctx) {
-        connections.remove(ctx);
+        CONNECTIONS.remove(ctx);
         System.out.println("WebSocket closed");
     }
 
@@ -45,13 +46,13 @@ public class WebSocketHandler {
         try {
             String json = ctx.message();
 
-            UserGameCommand base = gson.fromJson(json, UserGameCommand.class);
+            UserGameCommand base = GSON.fromJson(json, UserGameCommand.class);
             System.out.println("WS RECEIVED: " + base.getCommandType());
 
             switch (base.getCommandType()) {
                 case CONNECT -> handleConnect(ctx, base);
                 case MAKE_MOVE -> {
-                    UserGameCommand.Move moveCmd = gson.fromJson(json, UserGameCommand.Move.class);
+                    UserGameCommand.Move moveCmd = GSON.fromJson(json, UserGameCommand.Move.class);
                     handleMove(ctx, moveCmd);
                 }
                 case LEAVE -> handleLeave(ctx, base);
@@ -62,7 +63,7 @@ public class WebSocketHandler {
             ex.printStackTrace();
             ServerMessage error =
                     new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
-            ctx.send(gson.toJson(error));
+            ctx.send(GSON.toJson(error));
         }
     }
 
@@ -80,7 +81,7 @@ public class WebSocketHandler {
             ChessGame chessGame = gameData.game();
 
             ServerMessage load = new LoadGameMessage(chessGame);
-            ctx.send(gson.toJson(load));
+            ctx.send(GSON.toJson(load));
 
             broadcast(gameID,
                     new NotificationMessage(username + " joined the game"));   // THOUGHT THAT THIS WOULD FIX IT.
@@ -152,11 +153,11 @@ public class WebSocketHandler {
         } catch (chess.InvalidMoveException ex) {
             String msg = "Move " + start + " to " + end + " not allowed: " + ex.getMessage();
             ServerMessage error = new websocket.messages.ErrorMessage(msg);
-            ctx.send(gson.toJson(error));
+            ctx.send(GSON.toJson(error));
             return;
         } catch (Exception ex) {
             ServerMessage error = new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
-            ctx.send(gson.toJson(error));
+            ctx.send(GSON.toJson(error));
             return;
         }
 
@@ -191,7 +192,7 @@ public class WebSocketHandler {
             return;
         }
 
-        String json = gson.toJson(message);
+        String json = GSON.toJson(message);
         for (WsMessageContext session : sessions) {
             session.send(json);
         }

@@ -418,13 +418,6 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
-    private void assertObserve() throws Exception {
-        if (state == State.OBSERVE) {
-            throw new Exception("You can only Observe");
-        }
-    }
-
-
     private String extractErrorMessage(Exception ex) {
         String raw = ex.getMessage();
         int start = raw.indexOf("Error:");
