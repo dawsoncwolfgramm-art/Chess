@@ -23,29 +23,34 @@ public class DrawChessBoard {
     }
 
     public void printChessBoard(ChessBoard board, Set<ChessPosition> highlightSquares) {
-        var board1 = board.getBoard();
         boolean whiteSide = color.equalsIgnoreCase("white");
-        if (!whiteSide) {
-            board1 = flipBoard(board1);
-        }
         StringBuilder colorBoard = new StringBuilder();
-        colorBoard.append("\n");
-        colorBoard.append(SET_BG_COLOR_LIGHT_GREY);
-        boolean white = false;
+        colorBoard.append("\n").append(SET_BG_COLOR_LIGHT_GREY);
         if (whiteSide) {
             colorBoard.append("   " + " a " + "  b " + " c " + "  d " + "  e " + " f  " + " g " + "  h " + "\n");
         } else {
             colorBoard.append("   " + " h " + " g " + "  f " + "  e " + " d " + "  c " + " b  " + " a " + "\n");
         }
         for (int row = 7; row >= 0; row--) {
+
             int rank = whiteSide ? row + 1 : 8 - row;
             colorBoard.append(" ").append(rank).append(" ");
-            for (int col = 0; col < board1.length; col++) {
-                ChessPiece piece = board1[row][col];
-                boolean lightSquare = (row + col) % 2 == 0;
-                ChessPosition pos = new ChessPosition(row + 1, col + 1);
-                boolean isHighlighted = highlightSquares != null &&
-                        highlightSquares.contains(pos);
+            for (int col = 0; col < 8; col++) {
+
+                int realRow, realCol;
+                if (whiteSide) {
+                    realRow = row + 1;
+                    realCol = col + 1;
+                } else {
+                    realRow = 8 - row;
+                    realCol = 8 - col;
+                }
+
+                ChessPosition realPos = new ChessPosition(realRow, realCol);
+                ChessPiece piece = board.getPiece(realPos);
+
+                boolean lightSquare = (realRow + realCol) % 2 == 0;
+                boolean isHighlighted = highlightSquares != null && highlightSquares.contains(realPos);
 
                 if (isHighlighted) {
                     colorBoard.append(SET_BG_COLOR_MAGENTA);
@@ -54,15 +59,15 @@ public class DrawChessBoard {
                 }
                 colorBoard.append(symbolForChess(piece));
             }
-            white = (!white);
             colorBoard.append(" ").append(rank).append("\n");
         }
+        colorBoard.append(SET_BG_COLOR_LIGHT_GREY);
         if (whiteSide) {
             colorBoard.append("   " + " a " + "  b " + " c " + "  d " + "  e " + " f  " + " g " + "  h " + "\n");
         } else {
             colorBoard.append("   " + " h " + " g " + "  f " + "  e " + " d " + "  c " + " b  " + " a " + "\n");
         }
-        System.out.println(colorBoard.toString());
+        System.out.println(colorBoard);
     }
 
     private ChessPiece[][] flipBoard(ChessPiece[][] original) {
