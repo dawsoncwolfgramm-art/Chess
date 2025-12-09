@@ -71,7 +71,7 @@ public class ChessClient implements NotificationHandler {
                 case "clear" -> clear();
                 case "move" -> makeMove(params);
                 case "redraw" -> redrawBoard();
-//                case "leave" -> leaveGameCommand();
+                case "leave" -> leaveGame();
 //                case "resign" -> resignGameCommand();
 //                case "highlight" -> highlightMoves(params);
                 case "quit" -> "quit";
@@ -301,6 +301,24 @@ public class ChessClient implements NotificationHandler {
         DrawChessBoard drawer = new DrawChessBoard(currentColor);
         drawer.printChessBoard(currentGame.getBoard());
         return "";
+    }
+
+    private String leaveGame() throws Exception {
+        assertGamePlay();
+        if (currentGameId == null) {
+            return "You are not in a game.";
+        }
+
+        // notify server via WebSocket
+        serverFacade.leaveGame(authToken, String.valueOf(currentGameId));
+
+        // local cleanup
+        currentGameId = null;
+        currentGame = null;
+        currentColor = "white";
+        state = State.SIGNEDIN;
+
+        return "You left the game and returned to the lobby.";
     }
 
     public String help() {

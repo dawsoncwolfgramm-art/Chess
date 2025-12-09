@@ -41,7 +41,8 @@ public class ServerFacade {
         if (websocket != null) {
             int gameId = Integer.parseInt(gameIdString);
             websocket.sendLeave(authToken, gameId);
-            // you might also want: websocket.session.close()
+            websocket.close();
+            websocket = null;
         }
     }
 

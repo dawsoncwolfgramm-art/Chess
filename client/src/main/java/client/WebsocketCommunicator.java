@@ -106,4 +106,10 @@ public class WebsocketCommunicator extends Endpoint {
         );
         send(cmd);
     }
+
+    public void close() throws IOException {
+        if (session != null && session.isOpen()) {
+            session.close();
+        }
+    }
 }
