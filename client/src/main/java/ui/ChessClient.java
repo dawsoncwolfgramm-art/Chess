@@ -71,7 +71,7 @@ public class ChessClient implements NotificationHandler {
                 case "move" -> makeMove(params);
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-//                case "resign" -> resignGameCommand();
+                case "resign" -> resignGame();
 //                case "highlight" -> highlightMoves(params);
                 case "quit" -> "quit";
                 default -> "";
@@ -320,6 +320,25 @@ public class ChessClient implements NotificationHandler {
         } catch (Exception ex) {
             return "Leave failed: " + extractErrorMessage(ex);
         }
+    }
+
+    private String resignGame() throws Exception {
+        assertGamePlay();
+        if (currentGameId == null) {
+            return "You are not in a game.";
+        }
+
+        System.out.print("Are you sure you want to resign? (yes/no): ");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.nextLine().trim().toLowerCase();
+
+        if (!answer.equals("yes")) {
+            return "Resign cancelled.";
+        }
+
+        serverFacade.sendResign(authToken, currentGameId); // you implement this
+
+        return "You resigned the game.";
     }
 
     public String help() {
