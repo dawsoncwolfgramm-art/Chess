@@ -1,8 +1,6 @@
 package ui;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 
 import chess.ChessGame;
@@ -72,7 +70,7 @@ public class ChessClient implements NotificationHandler {
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
                 case "resign" -> resignGame();
-//                case "highlight" -> highlightMoves(params);
+                case "highlight" -> highlightMoves(params);
                 case "quit" -> "quit";
                 default -> "";
             };
@@ -301,6 +299,34 @@ public class ChessClient implements NotificationHandler {
         drawer.printChessBoard(currentGame.getBoard());
         return "";
     }
+
+    private String highlightMoves(String[] params) throws Exception {
+        assertGamePlay();
+        if (currentGame == null) {
+            return "No game loaded.";
+        }
+        if (params.length != 1) {
+            throw new Exception("Expected: highlight <square> (e.g. f7)");
+        }
+
+        String sq = params[0].toLowerCase();
+        int col = sq.charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(sq.charAt(1));
+
+        ChessPosition pos = new ChessPosition(row, col);
+        var moves = currentGame.validMoves(pos);
+        Set<ChessPosition> highlights = new HashSet<>();
+        highlights.add(pos);
+        if (moves != null) {
+            for (ChessMove m : moves) {
+                highlights.add(m.getEndPosition());
+            }
+        }
+        DrawChessBoard drawer = new DrawChessBoard(currentColor);
+        drawer.printChessBoard(currentGame.getBoard(), highlights);
+        return "";
+    }
+
 
     private String leaveGame() throws Exception {
         if (state != State.GAMEPLAY && state != State.OBSERVE) {
