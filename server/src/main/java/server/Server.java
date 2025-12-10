@@ -25,7 +25,7 @@ public class Server {
     private final Javalin server;
     private UserService userService;
     private DataAccess dataAccess;
-
+    private WebSocketHandler wsHandler;
 
     public Server() {
         try {
@@ -44,7 +44,7 @@ public class Server {
         server.put("/game", this::joinGame);
 
 
-        WebSocketHandler wsHandler = new WebSocketHandler(userService);
+        wsHandler = new WebSocketHandler(userService);
 
         server.ws("/ws", ws -> {
             ws.onConnect(wsHandler::connect);
@@ -58,6 +58,7 @@ public class Server {
     private void clear(Context ctx) {
         try {
             userService.clear();
+            wsHandler.clear();
             ctx.status(200).result("{}");
         } catch (Exception ex) {
             ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: " + ex.getMessage())));

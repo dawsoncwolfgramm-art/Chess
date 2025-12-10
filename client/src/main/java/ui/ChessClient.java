@@ -451,7 +451,7 @@ public class ChessClient implements NotificationHandler {
 
             case ERROR -> {
                 var err = (websocket.messages.ErrorMessage) message;
-                System.out.println(err.message);
+                System.out.println(err.errorMessage);
             }
         }
         printPrompt();
