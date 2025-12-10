@@ -60,7 +60,6 @@ public class WebSocketHandler {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
             ServerMessage error =
                     new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
             ctx.send(GSON.toJson(error));
@@ -82,13 +81,14 @@ public class WebSocketHandler {
 
             ServerMessage load = new LoadGameMessage(chessGame);
             ctx.send(GSON.toJson(load));
-
-            broadcast(gameID,
-                    new NotificationMessage(username + " joined the game"));   // THOUGHT THAT THIS WOULD FIX IT.
+            NotificationMessage note =
+                    new NotificationMessage(username + " joined the game");
+            broadcastToOthers(gameID, ctx, note);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            // later: send an ERROR message back
+            ServerMessage error =
+                    new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
+            ctx.send(GSON.toJson(error));
         }
     }
 
@@ -106,7 +106,9 @@ public class WebSocketHandler {
 
             broadcast(gameID, new NotificationMessage(username + " left the game"));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ServerMessage error =
+                    new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
+            ctx.send(GSON.toJson(error));
         }
     }
 
@@ -124,7 +126,9 @@ public class WebSocketHandler {
 
             broadcast(gameID, new NotificationMessage(username + " has resigned"));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ServerMessage error =
+                    new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
+            ctx.send(GSON.toJson(error));
         }
     }
 
@@ -195,6 +199,20 @@ public class WebSocketHandler {
         String json = GSON.toJson(message);
         for (WsMessageContext session : sessions) {
             session.send(json);
+        }
+    }
+
+    private void broadcastToOthers(int gameID, WsMessageContext exclude, ServerMessage message) {
+        var sessions = gameSessions.get(gameID);
+        if (sessions == null) {
+            return;
+        }
+
+        String json = GSON.toJson(message);
+        for (WsMessageContext session : sessions) {
+            if (session != exclude) {   // don't send back to the one who just connected
+                session.send(json);
+            }
         }
     }
 }
