@@ -125,16 +125,30 @@ public class WebSocketHandler {
             int gameID = command.getGameID();
             String auth = command.getAuthToken();
             String username = userService.getUsername(auth);
-
+            GameData gameData = userService.getGame(gameID);
+            ChessGame chessGame = gameData.game();
+            ChessGame.TeamColor playerColor = null;
+            if (username != null) {
+                if (username.equals(gameData.whiteUsername())) {
+                    playerColor = ChessGame.TeamColor.WHITE;
+                } else if (username.equals(gameData.blackUsername())) {
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
+            }
+            if (playerColor == null) {
+                ServerMessage error =
+                        new websocket.messages.ErrorMessage("Error: you are not a player in this game");
+                ctx.send(GSON.toJson(error));
+                return;
+            }
+            NotificationMessage note =
+                    new NotificationMessage(username + " has resigned");
+            broadcast(gameID, note);
             var sessions = gameSessions.get(gameID);
             if (sessions != null) {
                 sessions.remove(ctx);
             }
             userService.leaveGame(auth, gameID);
-
-            NotificationMessage note =
-                    new NotificationMessage(username + " has resigned");
-            broadcastToOthers(gameID, ctx, note);
         } catch (Exception ex) {
             ServerMessage error =
                     new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
@@ -205,22 +219,28 @@ public class WebSocketHandler {
         ServerMessage load = new LoadGameMessage(chessGame);
         broadcast(gameID, load);
 
-        String desc = username + " moved from " + start + " to " + end;
 
-        NotificationMessage note =
-                new NotificationMessage(desc);
-        broadcastToOthers(gameID, ctx, note);
-        if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
-            broadcast(gameID, new NotificationMessage("White is in check"));
-        }
-        if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
-            broadcast(gameID, new NotificationMessage("Black is in check"));
-        }
         if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            broadcast(gameID, new NotificationMessage("White is in checkmate"));
-        }
-        if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            broadcast(gameID, new NotificationMessage("Black is in checkmate"));
+            NotificationMessage noteCheckMate =
+                    new NotificationMessage("White is in checkmate");
+            broadcastToOthers(gameID, ctx, noteCheckMate);
+        } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            NotificationMessage noteCheckMate =
+                    new NotificationMessage("Black is in checkmate");
+            broadcastToOthers(gameID, ctx, noteCheckMate);
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+            NotificationMessage noteCheckMate =
+                    new NotificationMessage("White is in check");
+            broadcastToOthers(gameID, ctx, noteCheckMate);
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+            NotificationMessage noteCheckMate =
+                    new NotificationMessage("Black is in check");
+            broadcastToOthers(gameID, ctx, noteCheckMate);
+        } else {
+            String desc = username + " moved from " + start + " to " + end;
+            NotificationMessage note =
+                    new NotificationMessage(desc);
+            broadcastToOthers(gameID, ctx, note);
         }
     }
 
