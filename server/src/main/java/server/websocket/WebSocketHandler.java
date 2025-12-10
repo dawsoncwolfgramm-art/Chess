@@ -24,6 +24,7 @@ public class WebSocketHandler {
     private static final Set<WsConnectContext> CONNECTIONS = new HashSet<>();
     private final Map<Integer, Set<WsMessageContext>> gameSessions =
             new ConcurrentHashMap<>();
+    private final Set<Integer> finishedGames = ConcurrentHashMap.newKeySet();
     private final UserService userService;
     private static final Gson GSON = new Gson();
 
@@ -35,6 +36,7 @@ public class WebSocketHandler {
     public void clear() {
         gameSessions.clear();
         CONNECTIONS.clear();
+        finishedGames.clear();
     }
 
     public void connect(WsConnectContext ctx) {
@@ -126,7 +128,13 @@ public class WebSocketHandler {
             String auth = command.getAuthToken();
             String username = userService.getUsername(auth);
             GameData gameData = userService.getGame(gameID);
-            ChessGame chessGame = gameData.game();
+
+            if (finishedGames.contains(gameID)) {
+                ServerMessage error =
+                        new websocket.messages.ErrorMessage("Error: game is already over");
+                ctx.send(GSON.toJson(error));
+                return;
+            }
             ChessGame.TeamColor playerColor = null;
             if (username != null) {
                 if (username.equals(gameData.whiteUsername())) {
@@ -141,6 +149,8 @@ public class WebSocketHandler {
                 ctx.send(GSON.toJson(error));
                 return;
             }
+
+            finishedGames.add(gameID);
             NotificationMessage note =
                     new NotificationMessage(username + " has resigned");
             broadcast(gameID, note);
@@ -160,6 +170,13 @@ public class WebSocketHandler {
         int gameID = command.getGameID();
         String auth = command.getAuthToken();
         ChessMove move = command.getMove();
+
+        if (finishedGames.contains(gameID)) {
+            ServerMessage error =
+                    new websocket.messages.ErrorMessage("Error: game is already over");
+            ctx.send(GSON.toJson(error));
+            return;
+        }
 
         String username = userService.getUsername(auth);
         GameData gameData = userService.getGame(gameID);
@@ -221,10 +238,12 @@ public class WebSocketHandler {
 
 
         if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            finishedGames.add(gameID);
             NotificationMessage noteCheckMate =
                     new NotificationMessage("White is in checkmate");
             broadcastToOthers(gameID, ctx, noteCheckMate);
         } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            finishedGames.add(gameID);
             NotificationMessage noteCheckMate =
                     new NotificationMessage("Black is in checkmate");
             broadcastToOthers(gameID, ctx, noteCheckMate);
