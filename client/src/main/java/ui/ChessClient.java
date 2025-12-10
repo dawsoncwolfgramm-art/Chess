@@ -5,6 +5,7 @@ import java.util.*;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.ServerFacade;
 import datamodel.GameData;
@@ -213,7 +214,7 @@ public class ChessClient implements NotificationHandler {
             throw new Exception("Expected: <GAMEID>");
         }
         try {
-            String gameId = params[1];
+            String gameId = params[0];
             currentGameId = Integer.parseInt(gameId);
             List<GameData> games = serverFacade.listGames(authToken);
             GameData chosenGame = null;
@@ -261,7 +262,39 @@ public class ChessClient implements NotificationHandler {
         try {
             ChessPosition start = parseSquare(params[0]);
             ChessPosition end = parseSquare(params[1]);
-            ChessMove move = new ChessMove(start, end, null); // no promotion yet
+            ChessPiece.PieceType promotion = null;
+            if (currentGame != null) {
+                var board = currentGame.getBoard();
+                var piece = board.getPiece(start);
+
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                    boolean whiteToLastRow =
+                            piece.getTeamColor() == ChessGame.TeamColor.WHITE && end.getRow() == 8;
+                    boolean blackToLastRow =
+                            piece.getTeamColor() == ChessGame.TeamColor.BLACK && end.getRow() == 1;
+                    if (whiteToLastRow || blackToLastRow) {
+                        System.out.print("Promote pawn to a (q = queen), (r = rook), (b = bishop), or a (k = knight): ");
+                        Scanner scanner = new Scanner(System.in);
+                        String line = scanner.nextLine().toLowerCase();
+
+                        if (!line.isEmpty()) {
+                            switch (line.charAt(0)) {
+                                case 'q' -> promotion = ChessPiece.PieceType.QUEEN;
+                                case 'r' -> promotion = ChessPiece.PieceType.ROOK;
+                                case 'b' -> promotion = ChessPiece.PieceType.BISHOP;
+                                case 'n' -> promotion = ChessPiece.PieceType.KNIGHT;
+                                default -> {
+                                    System.out.println("Unknown choice, defaulting to queen.");
+                                    promotion = ChessPiece.PieceType.QUEEN;
+                                }
+                            }
+                        } else {
+                            promotion = ChessPiece.PieceType.QUEEN;
+                        }
+                    }
+                }
+            }
+            ChessMove move = new ChessMove(start, end, promotion);
 
             serverFacade.sendMove(authToken, currentGameId, move);
             return "Move sent.";
@@ -291,7 +324,9 @@ public class ChessClient implements NotificationHandler {
     }
 
     private String redrawBoard() throws Exception {
-        assertGamePlay();
+        if (state != State.GAMEPLAY && state != State.OBSERVE) {
+            return "Need to join a game";
+        }
         if (currentGameId == null) {
             return "No game board to redraw.";
         }
@@ -301,7 +336,9 @@ public class ChessClient implements NotificationHandler {
     }
 
     private String highlightMoves(String[] params) throws Exception {
-        assertGamePlay();
+        if (state != State.GAMEPLAY && state != State.OBSERVE) {
+            return "Need to join a game";
+        }
         if (currentGame == null) {
             return "No game loaded.";
         }

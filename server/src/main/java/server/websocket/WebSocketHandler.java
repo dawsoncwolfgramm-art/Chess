@@ -240,27 +240,27 @@ public class WebSocketHandler {
         if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
             finishedGames.add(gameID);
             NotificationMessage noteCheckMate =
-                    new NotificationMessage("White is in checkmate");
-            broadcastToOthers(gameID, ctx, noteCheckMate);
+                    new NotificationMessage(gameData.whiteUsername() + " is in checkmate");
+            broadcast(gameID, noteCheckMate);
         } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
             finishedGames.add(gameID);
             NotificationMessage noteCheckMate =
-                    new NotificationMessage("Black is in checkmate");
-            broadcastToOthers(gameID, ctx, noteCheckMate);
+                    new NotificationMessage(gameData.blackUsername() + " is in checkmate");
+            broadcast(gameID, noteCheckMate);
         } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
             NotificationMessage noteCheckMate =
-                    new NotificationMessage("White is in check");
-            broadcastToOthers(gameID, ctx, noteCheckMate);
+                    new NotificationMessage(gameData.whiteUsername() + " is in check");
+            broadcast(gameID, noteCheckMate);
         } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
             NotificationMessage noteCheckMate =
-                    new NotificationMessage("Black is in check");
-            broadcastToOthers(gameID, ctx, noteCheckMate);
-        } else {
-            String desc = username + " moved from " + start + " to " + end;
-            NotificationMessage note =
-                    new NotificationMessage(desc);
-            broadcastToOthers(gameID, ctx, note);
+                    new NotificationMessage(gameData.blackUsername() + " is in check");
+            broadcast(gameID, noteCheckMate);
         }
+        String desc = username + " moved from " + start + " to " + end;
+        NotificationMessage note =
+                new NotificationMessage(desc);
+        broadcastToOthers(gameID, ctx, note);
+
     }
 
     private String toChessNotation(int row, int col) {
