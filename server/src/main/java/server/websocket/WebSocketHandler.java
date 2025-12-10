@@ -11,6 +11,7 @@ import websocket.messages.ServerMessage;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsCloseContext;
+
 import service.UserService;
 
 import java.util.HashSet;
@@ -29,6 +30,11 @@ public class WebSocketHandler {
 
     public WebSocketHandler(UserService userService) {
         this.userService = userService;
+    }
+
+    public void clear() {
+        gameSessions.clear();
+        CONNECTIONS.clear();
     }
 
     public void connect(WsConnectContext ctx) {
@@ -104,7 +110,9 @@ public class WebSocketHandler {
             }
             userService.leaveGame(auth, gameID);
 
-            broadcast(gameID, new NotificationMessage(username + " left the game"));
+            NotificationMessage note =
+                    new NotificationMessage(username + " left the game");
+            broadcastToOthers(gameID, ctx, note);
         } catch (Exception ex) {
             ServerMessage error =
                     new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
@@ -124,7 +132,9 @@ public class WebSocketHandler {
             }
             userService.leaveGame(auth, gameID);
 
-            broadcast(gameID, new NotificationMessage(username + " has resigned"));
+            NotificationMessage note =
+                    new NotificationMessage(username + " has resigned");
+            broadcastToOthers(gameID, ctx, note);
         } catch (Exception ex) {
             ServerMessage error =
                     new websocket.messages.ErrorMessage("Error: " + ex.getMessage());
@@ -152,6 +162,33 @@ public class WebSocketHandler {
         );
 
         try {
+            ChessGame.TeamColor playerColor = null;
+            if (username != null) {
+                if (username.equals(gameData.whiteUsername())) {
+                    playerColor = ChessGame.TeamColor.WHITE;
+                } else if (username.equals(gameData.blackUsername())) {
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
+            }
+            if (playerColor == null) {
+                ServerMessage error =
+                        new websocket.messages.ErrorMessage("Error: you are not a player in this game");
+                ctx.send(GSON.toJson(error));
+                return;
+            }
+            if (chessGame.getTeamTurn() != playerColor) {
+                ServerMessage error =
+                        new websocket.messages.ErrorMessage("Error: it is not your turn");
+                ctx.send(GSON.toJson(error));
+                return;
+            }
+            var piece = chessGame.getBoard().getPiece(move.getStartPosition());
+            if (piece == null || piece.getTeamColor() != playerColor) {
+                ServerMessage error =
+                        new websocket.messages.ErrorMessage("Error: cannot move opponent's piece");
+                ctx.send(GSON.toJson(error));
+                return;
+            }
             chessGame.makeMove(move);
             userService.updateGameState(gameID, chessGame);
         } catch (chess.InvalidMoveException ex) {
@@ -169,8 +206,10 @@ public class WebSocketHandler {
         broadcast(gameID, load);
 
         String desc = username + " moved from " + start + " to " + end;
-        broadcast(gameID, new NotificationMessage(desc));
 
+        NotificationMessage note =
+                new NotificationMessage(desc);
+        broadcastToOthers(gameID, ctx, note);
         if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
             broadcast(gameID, new NotificationMessage("White is in check"));
         }
@@ -210,7 +249,7 @@ public class WebSocketHandler {
 
         String json = GSON.toJson(message);
         for (WsMessageContext session : sessions) {
-            if (session != exclude) {   // don't send back to the one who just connected
+            if (session.session != exclude.session) {
                 session.send(json);
             }
         }
